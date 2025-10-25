@@ -1,0 +1,2010 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberEstructuras: Pilas y Colas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- ESTILOS CSS (El Look Futurista) --- */
+        
+        :root {
+            --color-fondo: #0a0a1a;
+            --color-texto: #e0e0ff;
+            --color-neon-azul: #00ffff;
+            --color-neon-magenta: #ff00ff;
+            --color-neon-verde: #00ff00;
+            --color-glow: rgba(0, 255, 255, 0.5);
+            --color-glow-magenta: rgba(255, 0, 255, 0.5);
+            --color-fondo-panel: #1a1a2a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--color-fondo);
+            color: var(--color-texto);
+            display: flex;
+            flex-direction: column; /* Cambiado para las pestañas */
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: var(--color-neon-azul);
+            text-shadow: 0 0 10px var(--color-glow);
+            letter-spacing: 2px;
+        }
+
+        /* --- NAVEGACIÓN POR PESTAÑAS --- */
+        .tab-nav {
+            display: flex;
+            flex-wrap: wrap; /* Para que quepan más pestañas */
+            margin-bottom: -2px; /* Superponer borde */
+            z-index: 10;
+        }
+
+        .tab-btn {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem; /* Reducido para más pestañas */
+            background: var(--color-fondo); /* Ajustado */
+            border: 2px solid #444;
+            color: #888;
+            padding: 10px 20px; /* Ajustado */
+            cursor: pointer;
+            border-bottom: none;
+            border-radius: 10px 10px 0 0;
+            transition: all 0.3s ease;
+            margin: 2px;
+        }
+        
+        .tab-btn.active {
+            background: var(--color-fondo-panel);
+            border-color: var(--color-neon-azul);
+            color: var(--color-neon-azul);
+            text-shadow: 0 0 5px var(--color-glow);
+            transform: translateY(2px);
+            border-bottom: 2px solid var(--color-fondo-panel); /* Ocultar borde inferior */
+        }
+        
+        .tab-content {
+            display: none; /* Oculto por defecto */
+            width: 100%;
+        }
+        
+        .tab-content.active {
+            display: block; /* Visible */
+        }
+
+        /* --- Contenedor Principal --- */
+        .container {
+            width: 100%; /* Ajustado para pestañas */
+            max-width: 1400px;
+            background: var(--color-fondo-panel);
+            border: 2px solid var(--color-neon-azul);
+            border-radius: 0 10px 10px 10px; /* Ajustado para pestañas */
+            box-shadow: 0 0 25px var(--color-glow);
+            padding: 25px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        /* Contenedor para pestañas de conceptos */
+        .concept-container {
+            grid-template-columns: 300px 1fr; /* Columna para botones, otra para explicación */
+        }
+
+        /* --- Área de Visualización (Común) --- */
+        .visual-panel {
+            grid-column: 1 / -1; /* Ocupa todo el ancho */
+            border: 1px dashed var(--color-neon-azul);
+            padding: 20px;
+            min-height: 200px;
+            border-radius: 5px;
+        }
+        
+        /* --- Visualización de PILAS (Stacks) --- */
+        #pila-visualization-area {
+            display: flex;
+            flex-direction: column-reverse; /* Apila de abajo hacia arriba */
+            align-items: center;
+            min-height: 100px;
+            padding: 10px;
+            gap: 5px;
+            border: 2px dashed #444;
+            border-radius: 5px;
+            position: relative;
+        }
+        
+        .pila-item {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            padding: 15px 20px;
+            color: var(--color-neon-magenta); /* Color magenta para pilas */
+            background-color: #2a2a4a;
+            border: 2px solid var(--color-neon-magenta);
+            border-radius: 5px;
+            box-shadow: 0 0 10px var(--color-glow-magenta);
+            width: 200px; /* Ancho fijo */
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+
+        /* --- Visualización de FILAS (Queues) --- */
+        #fila-visualization-area {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            min-height: 100px;
+            padding: 10px;
+            gap: 10px;
+            border: 2px dashed #444;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        .queue-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--color-neon-azul);
+            text-shadow: 0 0 5px var(--color-glow);
+            padding: 5px 10px;
+            border: 1px solid var(--color-neon-azul);
+            border-radius: 5px;
+        }
+        
+        .queue-label.front {
+            margin-right: 10px;
+        }
+        
+        .queue-label.rear {
+            margin-left: 10px;
+        }
+        
+        .queue-item {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            padding: 15px 20px;
+            color: var(--color-neon-verde);
+            background-color: #2a2a4a;
+            border: 2px solid var(--color-neon-verde);
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            transition: all 0.5s ease;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        /* Animaciones Fila */
+        .queue-item-out {
+            animation: fadeOut 0.5s ease forwards;
+        }
+
+        /* Clases de animación JS (Comunes) */
+        .item-highlight {
+            transform: scale(1.1);
+            background-color: var(--color-neon-azul);
+            border-color: var(--color-texto);
+            box-shadow: 0 0 20px var(--color-glow);
+            color: var(--color-fondo) !important;
+        }
+        
+        .item-found {
+            background-color: var(--color-neon-verde);
+            border-color: var(--color-texto);
+        }
+
+        /* --- Paneles de Control e Info (Comunes) --- */
+        .controls-panel, .info-panel {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid #444;
+            border-radius: 5px;
+            padding: 20px;
+        }
+        
+        /* Panel específico para Glosario */
+        .glossary-nav {
+            height: 400px; /* Altura fija */
+            overflow-y: auto; /* Scroll si es necesario */
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding-right: 10px; /* Espacio para scrollbar */
+        }
+        
+        .glossary-content {
+            height: 400px; /* Altura fija */
+            overflow-y: auto; /* Scroll si es necesario */
+            font-size: 1.1em; /* Texto más grande para conceptos */
+            line-height: 1.6;
+        }
+        
+        .glossary-btn {
+            width: 100%;
+            text-align: left;
+            border-color: #444;
+            color: #888;
+            font-size: 0.9rem;
+            padding: 8px 10px; /* Ajuste para más botones */
+        }
+        .glossary-btn:hover {
+            border-color: var(--color-neon-azul);
+            color: var(--color-neon-azul);
+        }
+        .glossary-btn.active {
+            background: var(--color-neon-azul);
+            color: var(--color-fondo);
+            box-shadow: 0 0 15px var(--color-glow);
+        }
+
+
+        .controls-panel h3 {
+            margin-bottom: 15px;
+        }
+        
+        .control-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            flex-grow: 1;
+            background: var(--color-fondo);
+            border: 1px solid var(--color-neon-azul);
+            color: var(--color-texto);
+            padding: 10px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            border-radius: 3px;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            box-shadow: 0 0 10px var(--color-glow);
+        }
+
+        button {
+            font-family: 'Orbitron', sans-serif;
+            background: transparent;
+            border: 2px solid var(--color-neon-azul);
+            color: var(--color-neon-azul);
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 3px;
+            text-shadow: 0 0 5px var(--color-glow);
+            transition: all 0.3s ease;
+        }
+        button.danger {
+            border-color: var(--color-neon-magenta);
+            color: var(--color-neon-magenta);
+        }
+        button:hover {
+            background: var(--color-neon-azul);
+            color: var(--color-fondo);
+            box-shadow: 0 0 15px var(--color-glow);
+        }
+        button.danger:hover {
+            background: var(--color-neon-magenta);
+            color: var(--color-fondo);
+            box-shadow: 0 0 15px var(--color-glow-magenta);
+        }
+        button:disabled {
+            border-color: #555;
+            color: #555;
+            cursor: not-allowed;
+            background: transparent;
+            text-shadow: none;
+            box-shadow: none;
+        }
+
+        /* --- Panel de Información (Terminal) --- */
+        .console-output {
+            background: #000;
+            border: 1px solid var(--color-neon-verde);
+            height: 200px;
+            overflow-y: auto;
+            padding: 10px;
+            font-family: 'Menlo', 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--color-neon-verde);
+            margin-top: 10px;
+            white-space: pre-wrap;
+        }
+        .console-output .log-entry {
+            border-bottom: 1px dashed #2a4a2a;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+        }
+        .console-output .log-entry::before {
+            content: '> ';
+        }
+        .console-output .log-error {
+            color: var(--color-neon-magenta);
+        }
+        .console-output .log-info {
+             color: var(--color-neon-azul);
+        }
+
+        /* --- Panel de Explicación (Conceptos) --- */
+        .explanation-panel {
+            background: #000;
+            border: 1px solid var(--color-neon-azul);
+            height: 200px;
+            overflow-y: auto;
+            padding: 15px;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+        
+        .explanation-panel.large {
+            height: 400px; /* Para glosario */
+        }
+        
+        .explanation-panel p {
+            margin-bottom: 10px;
+        }
+        .explanation-panel h3 {
+            margin-top: 15px;
+            margin-bottom: 5px;
+            color: var(--color-neon-magenta);
+        }
+        /* Clases de utilidad para el JS */
+        .explanation-panel strong, .explanation-panel .strong {
+            color: var(--color-neon-azul);
+            font-weight: 700;
+        }
+        .explanation-panel code, .explanation-panel .code {
+            font-family: 'Menlo', 'Courier New', monospace;
+            color: var(--color-neon-magenta);
+            background: #222;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .explanation-panel ul {
+            margin-left: 20px;
+            margin-bottom: 10px;
+        }
+        .explanation-panel li {
+            margin-bottom: 5px;
+        }
+        .explanation-panel pre {
+            background: #050a14;
+            border: 1px dashed var(--color-neon-azul);
+            padding: 10px;
+            border-radius: 5px;
+            color: var(--color-texto);
+            white-space: pre-wrap;
+            font-family: 'Menlo', 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .null-text { 
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: #888;
+            margin: auto; /* Centra el texto */
+        }
+
+        /* --- Animaciones --- */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.8); }
+        }
+        @keyframes pulse {
+            0% { opacity: 0.7; }
+            50% { opacity: 1; text-shadow: 0 0 10px var(--color-glow); }
+            100% { opacity: 0.7; }
+        }
+
+        /* Responsividad */
+        @media (max-width: 900px) {
+            .container, .concept-container {
+                grid-template-columns: 1fr; /* Una sola columna */
+            }
+            .glossary-nav, .glossary-content, .explanation-panel.large {
+                height: 300px; /* Reducir altura en móviles */
+            }
+        }
+        
+    </style>
+</head>
+<body>
+
+    <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="pilas-sim">Simulador: Pilas</button>
+        <button class="tab-btn" data-tab="filas-sim">Simulador: Colas</button>
+        <button class="tab-btn" data-tab="pilas-conceptos">Conceptos: Pilas</button>
+        <button class="tab-btn" data-tab="filas-conceptos">Conceptos: Colas</button>
+    </nav>
+
+    <div id="pilas-sim-content" class="tab-content active">
+        <div class="container">
+            <header style="grid-column: 1 / -1; text-align: center; margin-bottom: 10px;">
+                <h1>CyberStack: Simulador de Pilas</h1>
+            </header>
+
+            <div class="visual-panel">
+                <h2>VISUALIZACIÓN DE LA PILA (LIFO)</h2>
+                <div id="pila-visualization-area">
+                    <span class="null-text">[PILA VACÍA]</span>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <h3>OPERACIONES DE PILA</h3>
+                <div class="control-group">
+                    <input type="text" id="pila-value" placeholder="Introduce un valor...">
+                </div>
+                <div class="control-group" style="flex-wrap: wrap;">
+                    <button id="pila-push-btn">Push (Añadir)</button>
+                    <button id="pila-pop-btn" class="danger">Pop (Eliminar)</button>
+                    <button id="pila-peek-btn">Peek (Ver Cima)</button>
+                </div>
+                 <div class="control-group" style="margin-top: 20px;">
+                    <button id="pila-clear-btn" class="danger" style="width: 100%;">Limpiar Pila</button>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <h3>CONSOLA DE OPERACIONES</h3>
+                <div id="pila-console-output" class="console-output">
+                    <div class="log-entry log-info">Bienvenido al Simulador de Pilas.</div>
+                </div>
+            </div>
+            
+            <div class="info-panel" style="grid-column: 1 / -1;">
+                <h3>CENTRO DE APRENDIZAJE: ¿Qué está pasando?</h3>
+                <div id="pila-explanation-panel" class="explanation-panel">
+                    <p>Usa los controles para manipular la Pila. Aquí aparecerá una explicación de cada operación.</p>
+                    <br>
+                    <p><strong>¿Qué es una Pila (Stack)?</strong> Es una estructura de datos lineal que sigue el principio <strong>LIFO (Last-In, First-Out)</strong>.</p>
+                    <p>Esto significa que <strong>el último elemento que entra es el primer elemento que sale</strong>, como una pila de platos: el último plato que pones es el primero que quitas.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="filas-sim-content" class="tab-content">
+        <div class="container">
+            <header style="grid-column: 1 / -1; text-align: center; margin-bottom: 10px;">
+                <h1>CyberQueue: Simulador de Filas</h1>
+            </header>
+
+            <div class="visual-panel">
+                <h2>VISUALIZACIÓN DE LA FILA (FIFO)</h2>
+                <div id="fila-visualization-area">
+                    <span class="null-text">[FILA VACÍA]</span>
+                </div>
+            </div>
+
+            <div class="controls-panel">
+                <h3>OPERACIONES DE FILA</h3>
+                <div class="control-group">
+                    <input type="text" id="fila-value" placeholder="Introduce un valor...">
+                </div>
+                <div class="control-group" style="flex-wrap: wrap;">
+                    <button id="enqueue-btn">Encolar (Enqueue)</button>
+                    <button id="dequeue-btn" class="danger">Desencolar (Dequeue)</button>
+                </div>
+                 <div class="control-group" style="margin-top: 20px;">
+                    <button id="clear-fila-btn" class="danger" style="width: 100%;">Limpiar Fila</button>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <h3>CONSOLA DE OPERACIONES</h3>
+                <div id="fila-console-output" class="console-output">
+                    <div class="log-entry log-info">Bienvenido al Simulador de Filas.</div>
+                </div>
+            </div>
+            
+            <div class="info-panel" style="grid-column: 1 / -1;">
+                <h3>CENTRO DE APRENDIZAJE: ¿Qué está pasando?</h3>
+                <div id="fila-explanation-panel" class="explanation-panel">
+                    <p>Usa los controles para manipular la fila. Aquí aparecerá una explicación de cada operación.</p>
+                    <br>
+                    <p><strong>¿Qué es una Fila (Queue)?</strong> Es una estructura de datos lineal que sigue el principio <strong>FIFO (First-In, First-Out)</strong>.</p>
+                    <p>Esto significa que <strong>el primer elemento que entra es el primer elemento que sale</strong>, como una fila para pagar en el supermercado o una cola de impresión.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="pilas-conceptos-content" class="tab-content">
+        <div class="container concept-container">
+            <header style="grid-column: 1 / -1; text-align: center; margin-bottom: 10px;">
+                <h1>Glosario Interactivo: Pilas (Stacks)</h1>
+            </header>
+            
+            <div class="info-panel">
+                <h3>Conceptos Clave (20)</h3>
+                <nav id="pilas-glossary-nav" class="glossary-nav">
+                    </nav>
+            </div>
+            
+            <div class="info-panel">
+                <h3>Definición y Aplicación</h3>
+                <div id="pilas-glossary-content" class="explanation-panel large glossary-content">
+                    <p>Haz clic en un concepto de la izquierda para ver su definición, ventajas y casos de uso aquí.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="filas-conceptos-content" class="tab-content">
+        <div class="container concept-container">
+            <header style="grid-column: 1 / -1; text-align: center; margin-bottom: 10px;">
+                <h1>Glosario Interactivo: Filas (Queues)</h1>
+            </header>
+            
+            <div class="info-panel">
+                <h3>Conceptos Clave (20)</h3>
+                <nav id="filas-glossary-nav" class="glossary-nav">
+                    </nav>
+            </div>
+            
+            <div class="info-panel">
+                <h3>Definición y Aplicación</h3>
+                <div id="filas-glossary-content" class="explanation-panel large glossary-content">
+                    <p>Haz clic en un concepto de la izquierda para ver su definición, ventajas y casos de uso aquí.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        /* --- LÓGICA JAVASCRIPT --- */
+
+        // Función de utilidad para dormir (para animaciones)
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        // --- 1. LÓGICA DE PESTAÑAS ---
+        const tabs = document.querySelectorAll('.tab-btn');
+        const contents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetId = tab.getAttribute('data-tab');
+                
+                // Actualizar botones
+                tabs.forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+
+                // Actualizar contenido
+                contents.forEach(c => {
+                    if (c.id === `${targetId}-content`) {
+                        c.classList.add('active');
+                    } else {
+                        c.classList.remove('active');
+                    }
+                });
+            });
+        });
+
+        // ======================================================
+        // --- 2. LÓGICA DE PILAS (SIMULADOR) ---
+        // ======================================================
+        
+        const pila = []; // La pila como un array
+        const pilaValueInput = document.getElementById('pila-value');
+        const pilaPushBtn = document.getElementById('pila-push-btn');
+        const pilaPopBtn = document.getElementById('pila-pop-btn');
+        const pilaPeekBtn = document.getElementById('pila-peek-btn');
+        const pilaClearBtn = document.getElementById('pila-clear-btn');
+        const pilaVisArea = document.getElementById('pila-visualization-area');
+        const pilaConsoleOutput = document.getElementById('pila-console-output');
+        const pilaExplanationPanel = document.getElementById('pila-explanation-panel');
+
+        function togglePilaButtons(disabled) {
+            pilaPushBtn.disabled = disabled;
+            pilaPopBtn.disabled = disabled;
+            pilaPeekBtn.disabled = disabled;
+            pilaClearBtn.disabled = disabled;
+        }
+
+        function renderPila() {
+            pilaVisArea.innerHTML = '';
+            if (pila.length === 0) {
+                pilaVisArea.innerHTML = '<span class="null-text">[PILA VACÍA]</span>';
+                return;
+            }
+            
+            pila.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'pila-item';
+                itemDiv.id = `pila-item-${index}`;
+                itemDiv.textContent = item;
+                if(index === pila.length - 1) {
+                    itemDiv.innerHTML += ' <span style="color:var(--color-neon-azul);"></span>';
+                }
+                pilaVisArea.appendChild(itemDiv);
+            });
+        }
+        
+        function logToPilaConsole(message, type = 'log') {
+            const entry = document.createElement('div');
+            let typeClass = 'log-entry';
+            if (type === 'error') typeClass += ' log-error';
+            if (type === 'info') typeClass += ' log-info';
+            entry.className = typeClass;
+            entry.textContent = message;
+            pilaConsoleOutput.appendChild(entry);
+            pilaConsoleOutput.scrollTop = pilaConsoleOutput.scrollHeight;
+        }
+
+        function updatePilaExplanation(title, content) {
+            pilaExplanationPanel.innerHTML = `<h3>${title}</h3>${content}`;
+        }
+
+        function getPilaValor() {
+            const valor = pilaValueInput.value.trim();
+            if (valor === '') {
+                logToPilaConsole('Error: El valor no puede estar vacío.', 'error');
+                updatePilaExplanation('Error de Entrada', '<p>Debes introducir un valor en la caja de texto para realizar esta operación.</p>');
+                return null;
+            }
+            return valor;
+        }
+
+        pilaPushBtn.addEventListener('click', () => {
+            const valor = getPilaValor();
+            if (valor === null) return;
+            
+            pila.push(valor);
+            renderPila();
+            
+            // Animación
+            const nuevoItem = document.getElementById(`pila-item-${pila.length - 1}`);
+            if(nuevoItem) {
+                nuevoItem.classList.add('item-highlight');
+                setTimeout(() => nuevoItem.classList.remove('item-highlight'), 1000);
+            }
+
+            logToPilaConsole(`Push(${valor}): Elemento añadido a la cima.`, 'info');
+            updatePilaExplanation(
+                'Operación: Push (Añadir)',
+                `<p>Se ha añadido el elemento <strong>${valor}</strong> a la <strong>cima</strong> (top) de la pila.</p>
+                 <p>En nuestra implementación con un Array, esto es una operación <code class='code'>push()</code>.</p>
+                 <p>Esta operación es muy rápida, <strong>O(1)</strong>.</p>`
+            );
+            pilaValueInput.value = '';
+        });
+
+        pilaPopBtn.addEventListener('click', async () => {
+            togglePilaButtons(true);
+            if (pila.length === 0) {
+                logToPilaConsole('Error: Pila vacía (Stack Underflow).', 'error');
+                updatePilaExplanation('Error: Pila Vacía', '<p>No se puede eliminar un elemento porque la pila ya está vacía (Underflow).</p>');
+                togglePilaButtons(false);
+                return;
+            }
+
+            // Animar el elemento que sale
+            const itemSaliendo = document.getElementById(`pila-item-${pila.length - 1}`);
+            if (itemSaliendo) {
+                itemSaliendo.classList.add('item-highlight'); // Re-usamos la clase highlight
+                logToPilaConsole(`Pop(): Elemento "${pila[pila.length-1]}" saliendo de la cima...`);
+                await sleep(500); 
+            }
+            
+            const valor = pila.pop();
+            renderPila();
+            logToPilaConsole(`Elemento "${valor}" ha sido eliminado de la cima.`);
+            updatePilaExplanation(
+                'Operación: Pop (Eliminar)',
+                `<p>Se ha eliminado el elemento <strong>${valor}</strong> de la <strong>cima</strong> de la pila.</p>
+                 <p>Este era el último elemento que entró (principio <strong>LIFO</strong>).</p>
+                 <p>En nuestra implementación con un Array, esto es una operación <code class='code'>pop()</code>.</p>
+                 <p>Esta operación también es muy rápida, <strong>O(1)</strong>.</p>`
+            );
+            togglePilaButtons(false);
+        });
+
+        pilaPeekBtn.addEventListener('click', () => {
+            if (pila.length === 0) {
+                logToPilaConsole('Error: Pila vacía. No hay nada que ver.', 'error');
+                updatePilaExplanation('Error: Pila Vacía', '<p>No se puede "ver" la cima porque la pila está vacía.</p>');
+                return;
+            }
+
+            const valor = pila[pila.length - 1];
+            const itemViendo = document.getElementById(`pila-item-${pila.length - 1}`);
+            if (itemViendo) {
+                itemViendo.classList.add('item-highlight');
+                setTimeout(() => itemViendo.classList.remove('item-highlight'), 1000);
+            }
+            
+            logToPilaConsole(`Peek(): El elemento en la cima es "${valor}".`, 'info');
+            updatePilaExplanation(
+                'Operación: Peek (Ver Cima)',
+                `<p>Se ha "visto" el elemento en la cima sin eliminarlo. El valor es <strong>${valor}</strong>.</p>
+                 <p>Esta operación es <strong>O(1)</strong>.</p>`
+            );
+        });
+        
+        pilaClearBtn.addEventListener('click', () => {
+            pila.length = 0; // Vacía el array
+            renderPila();
+            logToPilaConsole('¡Pila borrada!', 'info');
+            updatePilaExplanation(
+                'Operación: Limpiar Pila',
+                `<p>Se ha vaciado la pila. Todos los elementos han sido eliminados.</p>`
+            );
+        });
+
+        // ======================================================
+        // --- 3. LÓGICA DE FILAS (SIMULADOR) ---
+        // ======================================================
+
+        // --- 3.1. Definición de las Estructuras de Datos (Fila) ---
+        class Fila {
+            constructor() {
+                this.items = []; // Usamos un array simple para la implementación
+            }
+            
+            // Añadir al final (rear)
+            enqueue(data) {
+                this.items.push(data);
+            }
+            
+            // Quitar del inicio (front)
+            dequeue() {
+                if (this.isEmpty()) {
+                    return null;
+                }
+                return this.items.shift();
+            }
+            
+            // Ver el primer elemento
+            peek() {
+                if (this.isEmpty()) {
+                    return null;
+                }
+                return this.items[0];
+            }
+            
+            isEmpty() {
+                return this.items.length === 0;
+            }
+            
+            size() {
+                return this.items.length;
+            }
+        }
+
+        // --- 3.2. Lógica de la Interfaz (DOM Fila) ---
+        const miFila = new Fila();
+        const filaVisArea = document.getElementById('fila-visualization-area');
+        const filaInput = document.getElementById('fila-value');
+        const enqueueBtn = document.getElementById('enqueue-btn');
+        const dequeueBtn = document.getElementById('dequeue-btn');
+        const clearFilaBtn = document.getElementById('clear-fila-btn');
+        const filaConsoleOutput = document.getElementById('fila-console-output');
+        const filaExplanationPanel = document.getElementById('fila-explanation-panel');
+
+        function toggleFilaButtons(disabled) {
+            enqueueBtn.disabled = disabled;
+            dequeueBtn.disabled = disabled;
+            clearFilaBtn.disabled = disabled;
+        }
+
+        function renderFila() {
+            filaVisArea.innerHTML = '';
+            if (miFila.isEmpty()) {
+                filaVisArea.innerHTML = '<span class="null-text">[FILA VACÍA]</span>';
+                return;
+            }
+            
+            // Añadir etiqueta "Frente"
+            const frontLabel = document.createElement('span');
+            frontLabel.className = 'queue-label front';
+            frontLabel.textContent = 'FRENTE (Sale de aquí)';
+            filaVisArea.appendChild(frontLabel);
+
+            // Añadir items
+            miFila.items.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'queue-item';
+                itemDiv.id = `item-${index}`;
+                itemDiv.textContent = item;
+                filaVisArea.appendChild(itemDiv);
+            });
+            
+            // Añadir etiqueta "Final"
+            const rearLabel = document.createElement('span');
+            rearLabel.className = 'queue-label rear';
+            rearLabel.textContent = 'FINAL (Entra por aquí)';
+            filaVisArea.appendChild(rearLabel);
+        }
+
+        function logToFilaConsole(message, type = 'log') {
+            const entry = document.createElement('div');
+            let typeClass = 'log-entry';
+            if (type === 'error') typeClass += ' log-error';
+            if (type === 'info') typeClass += ' log-info';
+            entry.className = typeClass;
+            entry.textContent = message;
+            filaConsoleOutput.appendChild(entry);
+            filaConsoleOutput.scrollTop = filaConsoleOutput.scrollHeight;
+        }
+
+        function updateFilaExplanation(title, content) {
+            filaExplanationPanel.innerHTML = `<h3>${title}</h3>${content}`;
+        }
+        
+        function getFilaValor() {
+            const valor = filaInput.value.trim();
+            if (valor === '') {
+                logToFilaConsole('Error: El valor no puede estar vacío.', 'error');
+                updateFilaExplanation('Error de Entrada', '<p>Debes introducir un valor en la caja de texto para realizar esta operación.</p>');
+                return null;
+            }
+            return valor;
+        }
+
+        enqueueBtn.addEventListener('click', () => {
+            const valor = getFilaValor();
+            if (valor === null) return;
+            
+            miFila.enqueue(valor);
+            renderFila();
+            
+            // Pequeña animación
+            const nuevoItem = filaVisArea.querySelector(`#item-${miFila.size() - 1}`);
+            if(nuevoItem) {
+                nuevoItem.classList.add('item-highlight');
+                setTimeout(() => nuevoItem.classList.remove('item-highlight'), 1000);
+            }
+
+            logToFilaConsole(`Valor "${valor}" añadido al FINAL (Enqueued).`, 'info');
+            updateFilaExplanation(
+                'Operación: Encolar (Enqueue)',
+                `<p>Se ha añadido el elemento <strong>${valor}</strong> al <strong>final</strong> de la fila.</p>
+                 <p>En nuestra implementación con un Array, esto es una operación <code class='code'>push()</code>.</p>
+                 <p>Esta operación es muy rápida, <strong>O(1)</strong>.</p>`
+            );
+            filaInput.value = '';
+        });
+        
+        dequeueBtn.addEventListener('click', async () => {
+            toggleFilaButtons(true);
+            if (miFila.isEmpty()) {
+                logToFilaConsole('Error: La fila está vacía. No se puede desencolar.', 'error');
+                updateFilaExplanation('Error: Fila Vacía', '<p>No se puede eliminar un elemento porque la fila ya está vacía (Underflow).</p>');
+                toggleFilaButtons(false);
+                return;
+            }
+
+            // Animar el elemento que sale
+            const itemSaliendo = filaVisArea.querySelector('#item-0');
+            if (itemSaliendo) {
+                itemSaliendo.classList.add('queue-item-out');
+                logToFilaConsole(`Elemento "${miFila.peek()}" saliendo del FRENTE...`);
+                await sleep(500); // Esperar que termine la animación
+            }
+            
+            const valor = miFila.dequeue();
+            renderFila();
+            logToFilaConsole(`Elemento "${valor}" ha sido eliminado del FRENTE (Dequeued).`);
+            updateFilaExplanation(
+                'Operación: Desencolar (Dequeue)',
+                `<p>Se ha eliminado el elemento <strong>${valor}</strong> del <strong>frente</strong> de la fila.</p>
+                 <p>Este era el primer elemento que entró (principio <strong>FIFO</strong>).</p>
+                 <p>En nuestra implementación con un Array, esto es una operación <code class='code'>shift()</code>.</p>
+                 <p><strong class='strong'>Nota Importante:</strong> En un Array, <code class'code'>shift()</code> puede ser lento (<strong>O(n)</strong>) porque debe re-indexar todos los demás elementos. En una Fila implementada con Listas Enlazadas, esta operación sería <strong>O(1)</strong>.</p>`
+            );
+            
+            toggleFilaButtons(false);
+        });
+        
+        clearFilaBtn.addEventListener('click', () => {
+            miFila.items = [];
+            renderFila();
+            logToFilaConsole('¡Fila borrada!', 'info');
+            updateFilaExplanation(
+                'Operación: Limpiar Fila',
+                `<p>Se ha vaciado la fila. Todos los elementos han sido eliminados.</p>`
+            );
+        });
+
+        // ======================================================
+        // --- 4. LÓGICA DE GLOSARIOS INTERACTIVOS ---
+        // ======================================================
+
+        // --- 4.1. Base de Datos de Conceptos (Pilas) ---
+        // ***** CONCEPTOS ULTRA-EXTENDIDOS *****
+        const conceptosPilas = {
+            'adt': {
+                titulo: 'Pila como ADT (Tipo de Dato Abstracto)',
+                html: `<p>Un <strong class="strong">Tipo de Dato Abstracto (ADT)</strong> es un modelo matemático o conceptual para un tipo de dato. Es una <strong class="strong">especificación</strong> de qué hace un tipo de dato, no cómo lo hace.</p>
+                       <p>Piensa en el ADT como el <strong class="strong">plano de una casa</strong>. Define que debe tener "una puerta para entrar", "ventanas para ver", "un techo para cubrir". No dice si la puerta es de madera o metal, o si las ventanas son redondas o cuadradas.</p>
+                       <p>El ADT Pila (Stack) es un <strong class="strong">"contrato"</strong> que define las siguientes operaciones (la <strong class="strong">interfaz pública</strong>):</p>
+                       <ul>
+                           <li><code class="code">push(item)</code>: Añade un elemento a la cima.</li>
+                           <li><code class="code">pop()</code>: Elimina y devuelve el elemento de la cima.</li>
+                           <li><code class="code">peek()</code>: Devuelve el elemento de la cima sin eliminarlo.</li>
+                           <li><code class="code">isEmpty()</code>: Devuelve <code class="code">true</code> si la pila está vacía.</li>
+                           <li><code class="code">size()</code>: Devuelve el número de elementos.</li>
+                       </ul>
+                       <p>La <strong class="strong">implementación</strong> (la "casa construida") puede ser un Array, una Lista Enlazada, etc. Mientras esa implementación cumpla con el contrato del ADT, es una Pila válida. Este principio de separar la interfaz de la implementación se llama <strong class="strong">Abstracción</strong> y es clave en la programación orientada a objetos.</p>
+                       <h3>Encapsulación</h3>
+                       <p>Un buen ADT también implica <strong class="strong">encapsulación</strong>. El "usuario" de tu clase Pila no debería saber (ni necesitar saber) si por dentro usas un array o una lista. Solo debe llamar a <code class="code">miPila.push(10)</code>. Esto te permite cambiar la implementación interna (ej. optimizarla) sin romper el código del usuario.</p>`
+            },
+            'lifo': {
+                titulo: 'Principio LIFO (Last-In, First-Out)',
+                html: `<p><strong class="strong">LIFO</strong> significa "Último en Entrar, Primero en Salir". Es el principio fundamental y definitorio de una Pila.</p>
+                       <p>Este principio establece que el elemento más reciente añadido a la estructura será el primer elemento en ser eliminado. Es una política de acceso "injusta" si se compara con una fila, pero es la correcta para tareas de "retroceso".</p>
+                       <h3>Analogías del Mundo Real:</h3>
+                       <ul>
+                           <li><strong class="strong">Pila de Platos:</strong> Pones platos limpios (<code class="code">push</code>) uno encima del otro. Cuando necesitas un plato, tomas el que está arriba (<code class="code">pop</code>), que fue el último que pusiste.</li>
+                           <li><strong class="strong">Dispensador de Bandejas:</strong> En una cafetería, empujas una bandeja limpia (<code class="code">push</code>) sobre el resorte. El siguiente cliente toma (<code class="code">pop</code>) esa misma bandeja.</li>
+                       </ul>
+                       <h3>Analogías en Computación:</h3>
+                       <ul>
+                           <li><strong class="strong">Pila de Llamadas (Call Stack):</strong> La función en la que estás <strong class="strong">ahora</strong> (la última en ser llamada) es la primera que debe <strong class="strong">terminar</strong> y ser eliminada de la pila.</li>
+                           <li><strong class="strong">Historial de "Atrás":</strong> El último sitio web que visitaste (<code class="code">push</code>) es el primer sitio al que vuelves (<code class="code">pop</code>) cuando presionas el botón "atrás".</li>
+                       </ul>
+                       <p>Cualquier estructura de datos que imponga esta regla de acceso LIFO es, por definición, una Pila.</p>`
+            },
+            'push': {
+                titulo: 'Operación: Push (Añadir)',
+                html: `<p>La operación <code class="code">push()</code> se usa para <strong class="strong">añadir un nuevo elemento</strong> a la pila. Este elemento se convierte en la nueva <strong class="strong">cima</strong> (top) de la pila.</p>
+                       <h3>Implementación (Pseudocódigo)</h3>
+                       <p>La implementación depende de la estructura subyacente:</p>
+                       <pre>CLASE PilaBasadaEnArray:
+    array = nuevo Array[TAMAÑO_MAX]
+    top = -1 // -1 indica que está vacía
+
+    FUNCION isFull():
+        RETORNAR (top == TAMAÑO_MAX - 1)
+
+    FUNCION push(valor):
+        SI (isFull()):
+            LANZAR ERROR "Stack Overflow"
+        SINO:
+            top = top + 1
+            array[top] = valor
+</pre>
+                       <pre>CLASE PilaBasadaEnLista:
+    nodoTop = NULL
+
+    // isFull() no existe aquí, solo se limita por la RAM
+
+    FUNCION push(valor):
+        nuevoNodo = nuevo Nodo(valor)
+        nuevoNodo.siguiente = nodoTop
+        nodoTop = nuevoNodo
+</pre>
+                       <p><strong class="strong">Complejidad (Big O):</strong></p>
+                       <ul>
+                           <li><strong class="strong">Lista Enlazada:</strong> Siempre <code class="code">O(1)</code>.</li>
+                           <li><strong class="strong">Array Estático:</strong> Siempre <code class="code">O(1)</code>.</li>
+                           <li><strong class="strong">Array Dinámico (ej. Python, ArrayList):</strong> <code class="code">O(1) Amortizado</code>. La mayoría de las veces es O(1), pero *ocasionalmente* el array se llena, debe duplicar su tamaño y copiar todos los elementos, costando <code class="code">O(n)</code>. Sin embargo, esto pasa tan raramente que el costo "promedio" sigue siendo O(1).</li>
+                       </ul>`
+            },
+            'pop': {
+                titulo: 'Operación: Pop (Eliminar)',
+                html: `<p>La operación <code class="code">pop()</code> se usa para <strong class="strong">eliminar y devolver</strong> el elemento que está actualmente en la <strong class="strong">cima</strong> (top) de la pila.</p>
+                       <p>Es fundamental que <code class="code">pop</code> haga dos cosas: 1) eliminar el elemento y 2) devolver su valor al programa. Si solo quisieras eliminarlo sin verlo, podrías hacerlo, pero la implementación estándar de <code class="code">pop</code> siempre devuelve el valor.</p>
+                       <h3>Implementación (Pseudocódigo)</h3>
+                       <pre>CLASE PilaBasadaEnArray:
+    FUNCION isEmpty():
+        RETORNAR (top == -1)
+
+    FUNCION pop():
+        SI (isEmpty()):
+            LANZAR ERROR "Stack Underflow"
+        SINO:
+            valorARetornar = array[top]
+            top = top - 1 // Mueve el puntero
+            RETORNAR valorARetornar
+</pre>
+                       <pre>CLASE PilaBasadaEnLista:
+    FUNCION isEmpty():
+        RETORNAR (nodoTop == NULL)
+
+    FUNCION pop():
+        SI (isEmpty()):
+            LANZAR ERROR "Stack Underflow"
+        SINO:
+            valorARetornar = nodoTop.valor
+            nodoTop = nodoTop.siguiente // Mueve el puntero
+            RETORNAR valorARetornar
+</pre>
+                       <p><strong class="strong">Manejo de Errores:</strong> Intentar hacer <code class="code">pop()</code> en una pila vacía es un error crítico. Lenguajes como Java lanzan una <code class="code">EmptyStackException</code>. Otros, como C, simplemente resultan en "comportamiento indefinido", lo que usualmente corrompe la memoria o crashea el programa.</p>`
+            },
+            'peek': {
+                titulo: 'Operación: Peek (o Top)',
+                html: `<p>La operación <code class="code">peek()</code> (a veces llamada <code class="code">top()</code>) permite <strong class="strong">"espiar" o ver</strong> cuál es el elemento que se encuentra en la cima de la pila, <strong class="strong">sin eliminarlo</strong>.</p>
+                       <p>Esta es la diferencia crucial con <code class="code">pop()</code>. <code class="code">pop()</code> es una operación "destructiva" (modifica la pila), mientras que <code class="code">peek()</code> es "no destructiva" (solo lee).</p>
+                       <h3>Implementación (Pseudocódigo)</h3>
+                       <pre>CLASE PilaBasadaEnArray:
+    FUNCION peek():
+        SI (isEmpty()):
+            LANZAR ERROR "Stack Underflow"
+        SINO:
+            RETORNAR array[top]
+</pre>
+                       <pre>CLASE PilaBasadaEnLista:
+    FUNCION peek():
+        SI (isEmpty()):
+            LANZAR ERROR "Stack Underflow"
+        SINO:
+            RETORNAR nodoTop.valor
+</pre>
+                       <p><strong class="strong">Uso en Algoritmos:</strong> <code class="code">peek()</code> es vital. Por ejemplo, en el algoritmo de balanceo de paréntesis, cuando encuentras un <code class="code">)</code>, necesitas *ver* (peek) si la cima de la pila es un <code class="code">(</code>. Si lo es, haces <code class="code">pop()</code>. Si no lo es (ej. es un <code class="code">[</code>), sabes que hay un error sin necesidad de hacer <code class="code">pop()</code>.</p>`
+            },
+            'complejidad': {
+                titulo: 'Complejidad Temporal y Espacial (Big O)',
+                html: `<p>La <strong class="strong">Complejidad Temporal</strong> (o "Big O") mide cómo escala el tiempo de ejecución de un algoritmo a medida que crece el tamaño de la entrada (<code class="code">n</code>).</p>
+                       <p>La eficiencia de las pilas (con una implementación correcta) es su mayor ventaja:</p>
+                       <h3>Complejidad Temporal (Tiempo)</h3>
+                       <table style="width:100%; border-collapse: collapse;">
+                         <tr style="border-bottom: 2px solid var(--color-neon-azul);">
+                           <th style="padding: 8px; text-align: left;">Operación</th>
+                           <th style="padding: 8px; text-align: left;">Promedio</th>
+                           <th style="padding: 8px; text-align: left;">Peor Caso</th>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;"><code class="code">Push</code></td>
+                           <td style="padding: 8px;"><code class="code">O(1)</code></td>
+                           <td style="padding: 8px;"><code class="code">O(1)</code> (Lista/Array Fijo), <code class="code">O(n)</code> (Array Dinámico)</td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;"><code class="code">Pop</code></td>
+                           <td style="padding: 8px;"><code class="code">O(1)</code></td>
+                           <td style="padding: 8px;"><code class="code">O(1)</code></td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;"><code class="code">Peek</code> / <code class="code">Top</code></td>
+                           <td style="padding: 8px;"><code class="code">O(1)</code></td>
+                           <td style="padding: 8px;"><code class="code">O(1)</code></td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;"><code class="code">Search</code> (Buscar)</td>
+                           <td style="padding: 8px;"><code class="code">O(n)</code></td>
+                           <td style="padding: 8px;"><code class="code">O(n)</code></td>
+                         </tr>
+                       </table>
+                       <p><strong class="strong">O(n) Amortizado en Push:</strong> En un array dinámico, cuando se llena, debe duplicar su tamaño y copiar <code class="code">n</code> elementos. Esto es O(n). Pero si promedias ese costo O(n) entre todas las demás inserciones O(1) que lo precedieron, el costo "amortizado" sigue siendo O(1).</p>
+                       
+                       <h3>Complejidad Espacial (Memoria)</h3>
+                       <ul>
+                           <li><strong class="strong">Espacio:</strong> <code class="code">O(n)</code>. Una pila debe almacenar <code class="code">n</code> elementos, por lo que su uso de memoria crece linealmente con la cantidad de elementos.</li>
+                       </ul>`
+            },
+            'impl_array': {
+                titulo: 'Implementación: Con Arrays (Vectores)',
+                html: `<p>Es la forma más común y sencilla de implementar una pila, especialmente si se usa un lenguaje con arrays dinámicos (como Python, JavaScript) o clases de listas (como <code class="code">ArrayList</code> en Java o <code class="code">Vector</code> en C++).</p>
+                       <h3>En JavaScript (Array Dinámico):</h3>
+                       <p>Es la implementación de este simulador.</p>
+                       <pre>let pila = [];
+// push(valor)
+pila.push(valor); // O(1) Amortizado
+// pop()
+let valor = pila.pop(); // O(1)
+// peek()
+let cima = pila[pila.length - 1]; // O(1)
+</pre>
+                       <h3>En C (Array Estático):</h3>
+                       <p>Aquí se debe manejar el tamaño manualmente.</p>
+                       <pre>#define TAMAÑO_MAX 100
+int pila[TAMAÑO_MAX];
+int top = -1; // Pila vacía
+
+void push(int valor) {
+    if (top >= TAMAÑO_MAX - 1) { /* ... error ... */ }
+    pila[++top] = valor;
+}
+
+int pop() {
+    if (top == -1) { /* ... error ... */ }
+    return pila[top--];
+}
+</pre>
+                       <p><strong class="strong">Ventaja: Localidad de Caché (Cache Locality).</strong> Dado que los arrays almacenan datos en bloques de memoria contiguos (uno al lado del otro), son extremadamente amigables con el caché de la CPU. Cuando la CPU lee un elemento, precarga los siguientes, haciendo que el acceso sea rapidísimo. Supera a las listas enlazadas en rendimiento puro por esta razón.</p>
+                       <p><strong class="strong">Desventaja:</strong> Tamaño fijo (en C) o costo de re-asignación O(n) (en arrays dinámicos).</p>`
+            },
+            'impl_lista': {
+                titulo: 'Implementación: Con Listas Enlazadas',
+                html: `<p>Esta es una implementación muy robusta y elegante que se adapta perfectamente al comportamiento de una Pila. Se usa una <strong class="strong">Lista Enlazada Simple</strong>.</p>
+                       <p>La clave es que la <strong class="strong">"Cima" (Top)</strong> de la pila es la <strong class="strong">"Cabeza" (Head)</strong> de la lista enlazada. Esto hace que las operaciones <code class="code">push</code> y <code class="code">pop</code> sean manipulaciones del <code class="code">head</code>, las cuales son <code class="code">O(1)</code>.</p>
+                       <h3>Pseudocódigo:</h3>
+                       <pre>CLASE Nodo:
+    valor
+    siguiente (puntero a Nodo)
+
+CLASE PilaConLista:
+    nodoTop (puntero a Nodo) = NULL
+
+    // Push es "Añadir al Inicio"
+    FUNCION push(valor):
+        nuevoNodo = nuevo Nodo(valor)
+        nuevoNodo.siguiente = nodoTop
+        nodoTop = nuevoNodo
+        // Complejidad: O(1)
+
+    // Pop es "Eliminar del Inicio"
+    FUNCION pop():
+        SI nodoTop == NULL:
+            LANZAR ERROR "Stack Underflow"
+        
+        valorARetornar = nodoTop.valor
+        nodoARemover = nodoTop
+        nodoTop = nodoTop.siguiente // Mueve el 'head'
+        ELIMINAR nodoARemover
+        RETORNAR valorARetornar
+        // Complejidad: O(1)
+</pre>
+                       <p><strong class="strong">Ventaja:</strong> Crecimiento dinámico verdadero. Nunca hay "Stack Overflow" por tamaño (solo si te acabas la RAM del sistema). Siempre es <code class="code">O(1)</code> garantizado para push/pop, sin costos amortizados.</p>
+                       <p><strong class="strong">Desventaja: Pobre Localidad de Caché.</strong> Cada nodo puede estar en una parte completamente diferente de la RAM. Saltar de un nodo a otro (<code>nodoTop.siguiente</code>) puede causar un "fallo de caché" (cache miss), lo que es más lento que el acceso contiguo de un array.</p>`
+            },
+            'call_stack': {
+                titulo: 'Uso: Pila de Llamadas (Call Stack)',
+                html: `<p>Este es el uso más fundamental de las pilas en la arquitectura de computadoras. El <strong class="strong">Call Stack</strong> (Pila de Llamadas a Funciones) gestiona la ejecución de tu código.</p>
+                       <p>Cuando una función es llamada, un <strong class="strong">"Marco de Pila" (Stack Frame)</strong> es "empujado" (<code class="code">push</code>) a la cima de la pila.</p>
+                       <p>Este marco contiene información vital para esa función:</p>
+                       <ul>
+                           <li><strong class="strong">Parámetros:</strong> Los valores pasados a la función (ej. <code>x=5, y=10</code>).</li>
+                           <li><strong class="strong">Variables Locales:</strong> Variables declaradas dentro de la función.</li>
+                           <li><strong class="strong">Puntero Base (BP) / Frame Pointer (FP):</strong> Un puntero al inicio del marco actual, para poder encontrar las variables locales.</li>
+                           <li><strong class="strong">Dirección de Retorno (Return Address):</strong> La línea de código exacta a la que debe volver la CPU cuando la función termine.</li>
+                       </ul>
+                       <h3>Ejemplo de Flujo:</h3>
+                       <pre>1: FUNCION main():
+2:     a = 5
+3:     resultado = calcularSuma(a, 10)
+4:     imprimir(resultado)
+</pre>
+                       <ol>
+                           <li><code class="code">main()</code> se ejecuta. <strong class="strong">Push</strong> del marco de <code class="code">main</code>. Pila: [main_frame]</li>
+                           <li>Línea 3: Se llama a <code class="code">calcularSuma(5, 10)</code>. <strong class="strong">Push</strong> del marco de <code class="code">calcularSuma</code> (con x=5, y=10, y dir. de retorno = Línea 4). Pila: [main_frame, suma_frame]</li>
+                           <li><code class="code">calcularSuma</code> termina y retorna 15.</li>
+                           <li>Se <strong class="strong">"desapila" (Pop)</strong> el marco de <code class="code">calcularSuma</code>. La CPU usa la dir. de retorno para saltar a la Línea 4. Pila: [main_frame]</li>
+                       </ol>
+                       <p><strong class="strong">Vulnerabilidad de Seguridad:</strong> Un ataque de <strong class="strong">"Stack Smashing"</strong> o "Buffer Overflow" ocurre cuando un atacante logra escribir datos (ej. desde un input de usuario) que "desbordan" un buffer de variables locales y <strong class="strong">sobrescriben la Dirección de Retorno</strong>. Pueden apuntarla a su propio código malicioso, tomando control del programa.</p>`
+            },
+            'undo': {
+                titulo: 'Uso: Botón "Deshacer" (Undo/Redo)',
+                html: `<p>Una pila LIFO es la estructura de datos perfecta para implementar la funcionalidad "Deshacer" (Undo) en cualquier aplicación (editores de texto, Photoshop, etc.).</p>
+                       <p>Se utilizan <strong class="strong">DOS</strong> pilas: una <strong class="strong">Pila de Deshacer (Undo Stack)</strong> y una <strong class="strong">Pila de Rehacer (Redo Stack)</strong>.</p>
+                       
+                       <h3>Flujo de Operaciones:</h3>
+                       <p><strong>1. Usuario realiza una acción (ej. "Escribir 'A'"):</strong></p>
+                       <ul>
+                           <li>Se crea un objeto <code class="code">Accion("Escribir 'A'")</code>.</li>
+                           <li><code class="code">undoStack.push(Accion("Escribir 'A'"))</code>.</li>
+                           <li>Se <strong class="strong">limpia</strong> la Pila de Rehacer (<code class="code">redoStack.clear()</code>). (No puedes rehacer si has creado una nueva acción).</li>
+                       </ul>
+                       <p><strong>2. Usuario presiona "Deshacer" (Ctrl+Z):</strong></p>
+                       <ul>
+                           <li>Se llama a <code class="code">accion = undoStack.pop()</code>.</li>
+                           <li>Se ejecuta la <strong class="strong">inversa</strong> de esa acción (ej. <code class="code">accion.ejecutarInversa()</code> -> "Borrar 'A'").</li>
+                           <li>La acción original se guarda en la Pila de Rehacer: <code class="code">redoStack.push(accion)</code>.</li>
+                       </ul>
+                       <p><strong>3. Usuario presiona "Rehacer" (Ctrl+Y):</strong></p>
+                       <ul>
+                           <li>Se llama a <code class="code">accion = redoStack.pop()</code>.</li>
+                           <li>Se ejecuta la acción <strong class="strong">original</strong> (ej. <code class="code">accion.ejecutar()</code> -> "Escribir 'A'").</li>
+                           <li>La acción se devuelve a la Pila de Deshacer: <code class="code">undoStack.push(accion)</code>.</li>
+                       </ul>`
+            },
+            'navegacion': {
+                titulo: 'Uso: Navegación Web (Atrás y Adelante)',
+                html: `<p>El historial de navegación de una pestaña del navegador se gestiona con dos pilas, de forma idéntica al sistema de "Deshacer/Rehacer".</p>
+                       <ul>
+                           <li><strong class="strong">Pila "Atrás" (Back Stack):</strong> Es la pila de "Undo".</li>
+                           <li><strong class="strong">Pila "Adelante" (Forward Stack):</strong> Es la pila de "Redo".</li>
+                       </ul>
+                       
+                       <h3>Flujo de Navegación:</h3>
+                       <p>Estás en <code class="code">Google.com</code>. Pila Atrás: [Google], Pila Adelante: [].</p>
+                       <p><strong>1. Haces clic en "Noticias.com":</strong></p>
+                       <ul>
+                           <li>Se <strong class="strong">"empuja" (Push)</strong> la página actual ("Google") a la Pila Atrás.</li>
+                           <li>Se navega a "Noticias.com" (la nueva página actual).</li>
+                           <li>Se <strong class="strong">limpia</strong> la Pila Adelante (ya no puedes ir "adelante").</li>
+                           <li>Estado: Actual = "Noticias", Atrás = [Google], Adelante = [].</li>
+                       </ul>
+                       <p><strong>2. Haces clic en "Deportes.com":</strong></p>
+                       <ul>
+                           <li>Se <strong class="strong">Push</strong> de "Noticias" a la Pila Atrás.</li>
+                           <li>Se navega a "Deportes.com".</li>
+                           <li>Estado: Actual = "Deportes", Atrás = [Google, Noticias], Adelante = [].</li>
+                       </ul>
+                       <p><strong>3. Presionas "Atrás":</strong></p>
+                       <ul>
+                           <li>Se <strong class="strong">Push</strong> de la página actual ("Deportes") a la Pila Adelante.</li>
+                           <li>Se <strong class="strong">Pop</strong> de la Pila Atrás ("Noticias") y se navega a ella.</li>
+                           <li>Estado: Actual = "Noticias", Atrás = [Google], Adelante = [Deportes].</li>
+                       </ul>
+                       <p><strong>4. Presionas "Adelante":</strong></p>
+                       <ul>
+                           <li>Se <strong class="strong">Push</strong> de la página actual ("Noticias") a la Pila Atrás.</li>
+                           <li>Se <strong class="strong">Pop</strong> de la Pila Adelante ("Deportes") y se navega a ella.</li>
+                           <li>Estado: Actual = "Deportes", Atrás = [Google, Noticias], Adelante = [].</li>
+                       </ul>`
+            },
+            'rpn': {
+                titulo: 'Uso: Evaluación de Expresiones (RPN)',
+                html: `<p>Las pilas son fundamentales para los compiladores e intérpretes para analizar y evaluar expresiones matemáticas, especialmente en <strong class="strong">Notación Polaca Inversa (RPN)</strong>, también conocida como "postfija".</p>
+                       <p>RPN es una forma de escribir expresiones matemáticas que <strong class="strong">elimina la necesidad de paréntesis</strong> y reglas de precedencia (como "multiplicar antes de sumar").</p>
+                       <ul>
+                           <li>Infija (normal): <code class="code">5 + (2 * 3)</code></li>
+                           <li>Postfija (RPN): <code class="code">5 2 3 * +</code></li>
+                       </ul>
+                       <p>RPN es muy fácil de evaluar para una computadora usando una pila:</p>
+                       <h3>Evaluando <code class="code">5 2 3 * +</code>:</h3>
+                       <ol>
+                           <li>Lee <code class="code">5</code> (Número) -> <strong class="strong">Push(5)</strong>. Pila: [5]</li>
+                           <li>Lee <code class="code">2</code> (Número) -> <strong class="strong">Push(2)</strong>. Pila: [5, 2]</li>
+                           <li>Lee <code class="code">3</code> (Número) -> <strong class="strong">Push(3)</strong>. Pila: [5, 2, 3]</li>
+                           <li>Lee <code class="code">*</code> (Operador) -> Es un operador. <strong class="strong">Pop</strong> dos veces.</li>
+                           <li>&nbsp;&nbsp;&nbsp;&nbsp;Operando_B = Pop() -> 3</li>
+                           <li>&nbsp;&nbsp;&nbsp;&nbsp;Operando_A = Pop() -> 2</li>
+                           <li>&nbsp;&nbsp;&nbsp;&nbsp;Calcula: 2 * 3 = 6</li>
+                           <li>&nbsp;&nbsp;&nbsp;&nbsp;<strong class="strong">Push</strong> del resultado. Pila: [5, 6]</li>
+                           <li>Lee <code class="code">+</code> (Operador) -> Es un operador. <strong class="strong">Pop</strong> dos veces.</li>
+                           <li>&nbsp;&nbsp;&nbsp;&nbsp;Operando_B = Pop() -> 6</li>
+                           <li>&nbsp;&nbsp;&nbsp;&nbsp;Operando_A = Pop() -> 5</li>
+                           <li>&nbsp;&nbsp;&nbsp;&nbsp;Calcula: 5 + 6 = 11</li>
+                           <li>&nbsp;&nbsp;&nbsp;&nbsp;<strong class="strong">Push</strong> del resultado. Pila: [11]</li>
+                           <li>Fin de la expresión. El resultado es el valor en la cima: <strong class="strong">11</strong>.</li>
+                       </ol>
+                       <p>Las pilas también se usan en el <strong class="strong">Algoritmo Shunting-yard</strong> para <strong class="strong">convertir</strong> expresiones infijas (como las escribimos) a postfijas (RPN).</p>`
+            },
+            'dfs': {
+                titulo: 'Uso: Búsqueda en Profundidad (DFS)',
+                html: `<p>En algoritmos de grafos y árboles, la <strong class="strong">Búsqueda en Profundidad (Depth-First Search)</strong> es una estrategia que explora tan "profundo" como sea posible por una rama antes de retroceder (backtracking).</p>
+                       <p>DFS se implementa de forma natural usando una <strong class="strong">Pila</strong> (o usando recursión, que es una implementación implícita de una pila a través del Call Stack).</p>
+                       <h3>Algoritmo de DFS con Pila (Iterativo):</h3>
+                       <pre>FUNCION DFS(nodoInicial):
+    pila = nueva Pila()
+    pila.push(nodoInicial)
+    visitados = nuevo Set()
+
+    MIENTRAS pila NO ESTÉ VACÍA:
+        nodoActual = pila.pop() // Saca el nodo más reciente
+
+        SI nodoActual YA ESTÁ en visitados:
+            CONTINUAR (saltar)
+
+        // Marcar como visitado AL SACARLO
+        visitados.add(nodoActual)
+        imprimir(nodoActual.valor) // Visitar el nodo
+
+        // Apilar todos sus vecinos
+        PARA cada vecino DE nodoActual:
+            SI vecino NO ESTÁ en visitados:
+                pila.push(vecino)
+</pre>
+                       <p><strong class="strong">DFS vs. BFS (con Cola):</strong></p>
+                       <ul>
+                           <li><strong class="strong">DFS (Pila/LIFO):</strong> Saca el último nodo añadido (ej. un "hijo"). Esto lo lleva a explorar <strong class="strong">hacia abajo</strong> (profundidad) antes de explorar a los "hermanos".</li>
+                           <li><strong class="strong">BFS (Cola/FIFO):</strong> Saca el primer nodo añadido (ej. un "padre"). Esto lo lleva a explorar a todos los <strong class="strong">"hermanos"</strong> (anchura) antes de explorar a los "hijos".</li>
+                       </ul>
+                       <p>DFS es la base del <strong class="strong">Backtracking</strong> (como en la solución de laberintos).</p>`
+            },
+            'balanceo': {
+                titulo: 'Uso: Balanceo de Paréntesis',
+                html: `<p>Las pilas son la herramienta perfecta para verificar si los símbolos de agrupación (paréntesis, llaves, corchetes) en un bloque de código o expresión matemática están correctamente <strong class="strong">anidados y balanceados</strong>.</p>
+                       <p>Ej. <code class="code">{ ( [ ] ) }</code> es válido. <code class="code">{ [ ( ] ) }</code> no es válido.</p>
+                       <h3>Algoritmo:</h3>
+                       <p>Recorre la cadena de texto, caracter por caracter:</p>
+                       <pre>FUNCION estaBalanceado(texto):
+    pila = nueva Pila()
+    mapaDePares = { "(": ")", "[": "]", "{": "}" }
+
+    PARA cada caracter EN texto:
+        SI caracter es un símbolo de APERTURA (ej. '(', '[', '{'):
+            pila.push(caracter)
+            
+        SINO SI caracter es un símbolo de CIERRE (ej. ')', ']', '}'):
+            // ERROR 1: Cierre sin apertura
+            SI pila.isEmpty():
+                RETORNAR FALSO 
+
+            simboloDeApertura = pila.pop()
+            
+            // ERROR 2: Cierre no coincide con apertura
+            SI mapaDePares[simboloDeApertura] != caracter:
+                RETORNAR FALSO
+
+    // ERROR 3: Apertura sin cierre
+    // Al final, la pila debe estar vacía.
+    RETORNAR pila.isEmpty()
+</pre>`
+            },
+            'stack_pointer': {
+                titulo: 'Concepto: Puntero de Pila (SP)',
+                html: `<p>A nivel de hardware y lenguaje ensamblador, la "Pila" (el Call Stack) es una región de memoria real. El <strong class="strong">Stack Pointer (SP)</strong> es un registro especial de la CPU que almacena la dirección de memoria de la <strong class="strong">cima</strong> actual de la pila.</p>
+                       <p>En la mayoría de las arquitecturas (como x86), la pila "crece hacia abajo", desde direcciones de memoria altas hacia direcciones bajas.</p>
+                       <p>Junto con el SP, a menudo se usa un <strong class="strong">Base Pointer (BP)</strong> o <strong class="strong">Frame Pointer (FP)</strong>.</p>
+                       
+                       <h3>Anatomía de un Marco de Pila (Stack Frame):</h3>
+                       <p>Cuando se llama a una función, esto es lo que se "empuja" (push) a la pila:</p>
+                       <pre>
+|... Variables Locales ... |
+|...     (crecen)      ... |
+|--------------------------| &lt;- Stack Pointer (SP)
+|... Espacio Temporal ...  |
+|--------------------------|
+|     Puntero Base (BP)    | &lt;- El SP antiguo se guarda aquí
+|--------------------------|
+|   Dirección de Retorno   |
+|--------------------------|
+| ... Parámetros Función ...|
+|--------------------------| &lt;- Base Pointer (BP)
+</pre>
+                       <p>El <strong class="strong">BP</strong> es estático durante la llamada a la función y sirve como "ancla" para encontrar las variables locales y parámetros (ej. "BP + 8" es el parámetro 1, "BP - 4" es la variable local 1). El <strong class="strong">SP</strong> se mueve dinámicamente a medida que se añaden/quitan variables locales.</p>`
+            },
+            'overflow': {
+                titulo: 'Error: Stack Overflow (Desbordamiento)',
+                html: `<p>Un <strong class="strong">Stack Overflow</strong> (Desbordamiento de Pila) es un error fatal que ocurre cuando la pila excede el tamaño de memoria que se le asignó.</p>
+                       <p>Esto se aplica tanto a pilas estáticas (arrays de tamaño fijo) como, más comúnmente, al <strong class="strong">Call Stack</strong> del programa.</p>
+                       <h3>Causas Comunes:</h3>
+                       <p><strong class="strong">1. Recursión Infinita (o muy profunda):</strong> Es la causa más famosa. Una función recursiva que nunca llega a su "caso base" se llamará a sí misma sin parar, apilando (push) marcos de pila hasta agotar el espacio.</p>
+                       <pre>FUNCION factorial(n):
+    // ¡Error! No hay caso base para n < 0
+    SI (n == 0) RETORNAR 1;
+    RETORNAR n * factorial(n - 1)
+    
+// factorial(-1) -> factorial(-2) -> ...
+</pre>
+                       <p><strong class="strong">2. Variables Locales Muy Grandes:</strong> El Call Stack almacena variables locales. Si declaras una variable local masiva, puede agotar la pila en una sola llamada.</p>
+                       <pre>FUNCION miFuncion():
+    // Esto puede causar Stack Overflow
+    // si el stack es de 1MB y el array
+    // ocupa 5MB.
+    int array_gigante[5000000];
+</pre>
+                       <p>El programa "crasha" (falla) porque la pila, al crecer, pisa (sobrescribe) otras regiones de memoria críticas (como el Heap o el código del programa).</p>`
+            },
+            'underflow': {
+                titulo: 'Error: Stack Underflow (Subdesbordamiento)',
+                html: `<p>Un <strong class="strong">Stack Underflow</strong> (Subdesbordamiento de Pila) es un error que ocurre cuando intentas realizar una operación <code class="code">pop()</code> o <code class="code">peek()</code> en una <strong>pila vacía</strong>.</p>
+                       <p>Es un error lógico. Estás tratando de tomar algo de un contenedor que no tiene nada.</p>
+                       <h3>Manejo del Error en Diferentes Lenguajes:</h3>
+                       <ul>
+                           <li><strong class="strong">Java:</strong> Lanza una excepción específica: <code class="code">EmptyStackException</code>. El programa debe capturarla (try-catch) o fallará.</li>
+                           <li><strong class="strong">Python:</strong> Lanza una excepción genérica: <code class="code">IndexError: pop from empty list</code>.</li>
+                           <li><strong class="strong">C/C++:</strong> No hay protección. Es <strong class="strong">"Comportamiento Indefinido" (Undefined Behavior)</strong>. Al intentar leer <code class="code">array[top]</code> (donde <code class="code">top</code> es -1), el programa puede crashear (Segmentation Fault) o, peor aún, puede leer <strong class="strong">datos basura</strong> de esa posición de memoria, lo que lleva a errores sutiles y difíciles de depurar.</li>
+                       </ul>
+                       <p>Por esto, en C/C++, es <strong class="strong">mandatorio</strong> verificar <code class="code">isEmpty()</code> antes de cada <code class="code">pop()</code>.</p>`
+            },
+            'vs_cola': {
+                titulo: 'Comparativa: Pila vs. Cola',
+                html: `<p>Ambas son estructuras de datos lineales (colecciones de elementos en secuencia), pero su <strong class="strong">política de acceso</strong> es la opuesta.</p>
+                       <table style="width:100%; border-collapse: collapse;">
+                         <tr style="border-bottom: 2px solid var(--color-neon-azul);">
+                           <th style="padding: 8px; text-align: left;">Característica</th>
+                           <th style="padding: 8px; text-align: left;">Pila (Stack)</th>
+                           <th style="padding: 8px; text-align: left;">Cola (Queue)</th>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;">Principio</td>
+                           <td style="padding: 8px;"><strong class="strong">LIFO</strong> (Last-In, First-Out)</td>
+                           <td style="padding: 8px;"><strong class="strong">FIFO</strong> (First-In, First-Out)</td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;">Filosofía</td>
+                           <td style="padding: 8px;">"Lo más reciente primero"</td>
+                           <td style="padding: 8px;">"Lo más antiguo primero" / Justicia</td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;">Analogía</td>
+                           <td style="padding: 8px;">Pila de platos, Ctrl+Z</td>
+                           <td style="padding: 8px;">Fila del supermercado, Cola de impresión</td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;">Operación Añadir</td>
+                           <td style="padding: 8px;"><code class="code">Push</code> (a la <strong class="strong">cima</strong>)</td>
+                           <td style="padding: 8px;"><code class="code">Enqueue</code> (al <strong class="strong">final</strong>)</td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;">Operación Quitar</td>
+                           <td style="padding: 8px;"><code class="code">Pop</code> (de la <strong class="strong">cima</strong>)</td>
+                           <td style="padding: 8px;"><code class="code">Dequeue</code> (del <strong class="strong">frente</strong>)</td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;">Punteros Clave</td>
+                           <td style="padding: 8px;">1 puntero: <code class="code">Top</code> (Cima)</td>
+                           <td style="padding: 8px;">2 punteros: <code class="code">Front</code> y <code class="code">Rear</code></td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;">Uso en Algoritmos</td>
+                           <td style="padding: 8px;">DFS, Backtracking, RPN</td>
+                           <td style="padding: 8px;">BFS, Planificación, Camino más corto</td>
+                         </tr>
+                       </table>`
+            },
+            'vs_heap': {
+                titulo: 'Memoria: Pila (Stack) vs. Montón (Heap)',
+                html: `<p>En el contexto de la gestión de memoria de un programa, "Stack" y "Heap" son dos regiones de memoria fundamentales con propósitos opuestos. <strong class="strong">¡No confundir el "Heap" (memoria) con el "Heap" (estructura de datos de árbol)!</strong></p>
+                       <h3>La Pila (Stack)</h3>
+                       <ul>
+                           <li><strong class="strong">Tamaño:</strong> Fijo y pequeño (ej. 1MB - 8MB).</li>
+                           <li><strong class="strong">Gestión:</strong> <strong class="strong">Automática</strong> (por la CPU/Compilador).</li>
+                           <li><strong class="strong">Velocidad:</strong> <strong class="strong">Extremadamente rápida</strong> (solo mueve el Stack Pointer).</li>
+                           <li><strong class="strong">Contenido:</strong> Almacena <strong class="strong">tipos de valor</strong> (primitivos como <code>int</code>, <code>char</code>, <code>bool</code>), punteros, y referencias. Almacena <strong class="strong">variables locales</strong> de funciones.</li>
+                           <li><strong class="strong">Orden:</strong> LIFO. Los datos se crean (push) al entrar a una función y se destruyen (pop) <strong class="strong">automáticamente</strong> al salir (la variable "muere" al salir de su ámbito <code>{...}</code>).</li>
+                       </ul>
+                       <h3>El Montón (Heap)</h3>
+                       <ul>
+                           <li><strong class="strong">Tamaño:</strong> Grande y dinámico (toda la RAM disponible).</li>
+                           <li><strong class="strong">Gestión:</strong> <strong class="strong">Manual</strong> o por un Recolector de Basura (Garbage Collector - GC).</li>
+                           <li><strong class="strong">Velocidad:</strong> <strong class="strong">Más lenta</strong>. Encontrar un bloque de memoria libre (<code>malloc</code>, <code>new</code>) es una operación compleja.</li>
+                           <li><strong class="strong">Contenido:</strong> Almacena <strong class="strong">objetos</strong> y datos dinámicos (ej. <code>new MiClase()</code>, <code>malloc(1000)</code>).</li>
+                           <li><strong class="strong">Orden:</strong> Ninguno (es caótico). Los datos permanecen vivos <strong class="strong">hasta que se liberan explícitamente</strong> (<code>delete</code>, <code>free</code>) o el GC los limpia.</li>
+                       </ul>
+                       <p><strong class="strong">Conexión:</strong> <code>MiClase obj = new MiClase();</code> (en Java). La variable <code class="code">obj</code> (la referencia) vive en el <strong class="strong">Stack</strong>. El objeto <code class="code">new MiClase()</code> (los datos) vive en el <strong class="strong">Heap</strong>.</p>`
+            },
+            'pila_estatica_dinamica': {
+                titulo: 'Pila Estática vs. Dinámica',
+                html: `<p>Se refiere a cómo se asigna la memoria para la <strong class="strong">implementación</strong> de la pila (el ADT), no a la memoria "Stack vs Heap" del programa.</p>
+                       <h3>Pila Estática (Bounded Stack)</h3>
+                       <p>Implementada usando un <strong class="strong">array de tamaño fijo</strong>. (Ej: <code class="code">int miPila[100];</code> en C).</p>
+                       <ul>
+                           <li><strong class="strong">Ventaja:</strong> Muy simple de implementar. Extremadamente rápida (sin gestión de memoria dinámica, excelente localidad de caché).</li>
+                           <li><strong class="strong">Desventaja:</strong> Tamaño limitado y fijo. Si se llena, provoca <strong>Stack Overflow</strong>. Si usas pocos elementos (ej. 5 de 100), desperdicias el 95% de la memoria.</li>
+                           <li><strong class="strong">Uso:</strong> Ideal cuando conoces el límite máximo de antemano (ej. un buffer de hardware, o un número máximo de deshacer).</li>
+                       </ul>
+                       <h3>Pila Dinámica (Unbounded Stack)</h3>
+                       <p>Implementada usando una <strong class="strong">lista enlazada</strong> (la implementación "pura") o un <strong class="strong">array dinámico</strong> (como <code class="code">ArrayList</code> en Java, <code class="code">list</code> en Python).</p>
+                       <ul>
+                           <li><strong class="strong">Ventaja:</strong> Crece y decrece según se necesite. No hay límite de tamaño (solo la RAM total). No desperdicia memoria.</li>
+                           <li><strong class="strong">Desventaja:</strong> Ligeramente más lenta (por la sobrecarga de crear/destruir nodos o re-asignar el array dinámico) y usa un poco más de memoria (por los punteros <code class="code">next</code> o el espacio extra del array dinámico).</li>
+                           <li><strong class="strong">Uso:</strong> La opción por defecto para la mayoría de las aplicaciones de software donde el tamaño de los datos es impredecible (ej. el Call Stack).</li>
+                       </ul>
+                       <p>En lenguajes como Java, <code class="code">Stack</code> (antiguo) usa un Vector (dinámico), pero se recomienda usar una <code class="code">Deque</code> (como <code class="code">ArrayDeque</code>) porque es más moderna y eficiente.</p>`
+            }
+        };
+
+
+        // --- 4.2. Base de Datos de Conceptos (Filas) ---
+        // ***** CONCEPTOS ULTRA-EXTENDIDOS *****
+        const conceptosFilas = {
+            'adt': {
+                titulo: 'Cola como ADT (Tipo de Dato Abstracto)',
+                html: `<p>Un <strong class="strong">Tipo de Dato Abstracto (ADT)</strong> es un modelo conceptual que define un "contrato" de operaciones, sin especificar la implementación.</p>
+                       <p>Piensa en el ADT como la <strong class="strong">interfaz de una máquina expendedora</strong>. Define que puedes "insertar moneda", "seleccionar producto" y "recibir producto". No te dice si usa resortes, un brazo robótico o gravedad para entregar el producto. Eso es la <strong class="strong">implementación</strong>.</p>
+                       <p>El ADT Cola (Queue) define el siguiente contrato (interfaz pública):</p>
+                       <ul>
+                           <li><code class="code">enqueue(item)</code>: Añade un elemento al <strong class="strong">final</strong> (rear) de la cola.</li>
+                           <li><code class="code">dequeue()</code>: Elimina y devuelve el elemento del <strong class="strong">frente</strong> (front) de la cola.</li>
+                           <li><code class="code">front()</code> (o <code class="code">peek</code>): Devuelve el elemento del frente sin eliminarlo.</li>
+                           <li><code class="code">isEmpty()</code>: Devuelve <code class="code">true</code> si la cola está vacía.</li>
+                           <li><code class="code">size()</code>: Devuelve el número de elementos.</li>
+                       </ul>
+                       <p>Este contrato <strong class="strong">garantiza</strong> el comportamiento FIFO. El usuario del ADT no sabe (ni le importa) si por dentro funciona con un array, una lista enlazada o dos pilas. Solo confía en que si mete A, B, C, al sacar obtendrá A, B, C.</p>`
+            },
+            'fifo': {
+                titulo: 'Principio FIFO (First-In, First-Out)',
+                html: `<p><strong class="strong">FIFO</strong> significa "Primero en Entrar, Primero en Salir". Es el principio fundamental y definitorio de una Cola.</p>
+                       <p>Este principio establece que el elemento más <strong class="strong">antiguo</strong> añadido a la estructura (el primero que entró) será el <strong class="strong">primer</strong> elemento en ser eliminado.</p>
+                       <p>Es el concepto de <strong class="strong">justicia y orden de llegada</strong> que vemos en el mundo real.</p>
+                       <h3>Analogías del Mundo Real:</h3>
+                       <ul>
+                           <li><strong class="strong">Fila del Supermercado:</strong> El primer cliente que se forma en la fila (First-In) es el primer cliente que es atendido por el cajero (First-Out). Sería "injusto" atender al último que llegó.</li>
+                           <li><strong class="strong">Cola de Impresión:</strong> El primer documento que envías a imprimir (First-In) es el primer documento que la impresora procesa (First-Out).</li>
+                       </ul>
+                       <h3>Analogías en Computación:</h3>
+                       <ul>
+                            <li><strong class="strong">Planificador de CPU (Round Robin):</strong> Los procesos esperan "en fila" su turno para usar la CPU.</li>
+                            <li><strong class="strong">Búsqueda en Anchura (BFS):</strong> Los nodos de un grafo se exploran en el orden en que fueron descubiertos, "capa por capa".</li>
+                       </ul>
+                       <p>Es la contraparte directa del principio <strong class="strong">LIFO</strong> de las Pilas.</p>`
+            },
+            'enqueue': {
+                titulo: 'Operación: Enqueue (Encolar)',
+                html: `<p>La operación <code class="code">enqueue()</code> (o a veces <code class="code">add()</code> o <code class="code">offer()</code>) se usa para <strong class="strong">añadir un nuevo elemento</strong> a la cola.</p>
+                       <p>Por definición, el elemento siempre se añade en la posición <strong class="strong">final</strong>, también conocida como <strong class="strong">cola</strong> (tail) o <strong class="strong">final</strong> (rear) de la estructura.</p>
+                       <h3>Implementación (Pseudocódigo con Lista)</h3>
+                       <p>Esta es la implementación ideal, que es <code class="code">O(1)</code>. Requiere un puntero al <code class="code">rear</code>.</p>
+                       <pre>CLASE ColaConLista:
+    nodoFront = NULL
+    nodoRear = NULL
+
+    FUNCION enqueue(valor):
+        nuevoNodo = nuevo Nodo(valor)
+        
+        SI (isEmpty()): // Si es el primer nodo
+            nodoFront = nuevoNodo
+            nodoRear = nuevoNodo
+        SINO:
+            // Enlazar el nodo final antiguo al nuevo
+            nodoRear.siguiente = nuevoNodo
+            // Mover el puntero 'rear' al nuevo nodo
+            nodoRear = nuevoNodo
+</pre>
+                       <p>En una implementación con <strong class="strong">Cola Circular (Array)</strong>, <code class="code">enqueue</code> implica poner el valor en <code class="code">array[rear]</code> y luego mover el índice <code class="code">rear</code> usando módulo: <code class="code">rear = (rear + 1) % TAMAÑO_MAX</code>.</p>`
+            },
+            'dequeue': {
+                titulo: 'Operación: Dequeue (Desencolar)',
+                html: `<p>La operación <code class="code">dequeue()</code> (o a veces <code class="code">poll()</code> o <code class="code">remove()</code>) se usa para <strong class="strong">eliminar y devolver</strong> el elemento más antiguo de la cola.</p>
+                       <p>Este elemento siempre se toma del <strong class="strong">frente</strong> (front) o <strong class="strong">cabeza</strong> (head) de la estructura.</p>
+                       <h3>Implementación (Pseudocódigo con Lista)</h3>
+                       <p>Esta es la implementación ideal, que es <code class="code">O(1)</code>. Requiere un puntero al <code class="code">front</code>.</p>
+                       <pre>CLASE ColaConLista:
+    // ... (definida en 'enqueue')
+
+    FUNCION dequeue():
+        SI (isEmpty()):
+            LANZAR ERROR "Queue Underflow"
+
+        valorARetornar = nodoFront.valor
+        nodoARemover = nodoFront
+        
+        // Mover el puntero 'front' al siguiente nodo
+        nodoFront = nodoFront.siguiente
+        
+        // ¡CASO BORDE IMPORTANTE!
+        // Si la cola queda vacía, 'rear' también debe ser NULL
+        SI (nodoFront == NULL):
+            nodoRear = NULL
+            
+        ELIMINAR nodoARemover
+        RETORNAR valorARetornar
+</pre>
+                       <p>En una implementación con <strong class="strong">Cola Circular (Array)</strong>, <code class="code">dequeue</code> implica leer el valor de <code class="code">array[front]</code> y luego mover el índice <code class="code">front</code>: <code class="code">front = (front + 1) % TAMAÑO_MAX</code>.</p>`
+            },
+            'front': {
+                titulo: 'Operación: Front (o Peek)',
+                html: `<p>La operación <code class="code">front()</code> (a veces llamada <code class="code">peek()</code>) permite <strong class="strong">"espiar" o ver</strong> cuál es el elemento que se encuentra en el <strong class="strong">frente</strong> (front) de la cola, <strong class="strong">sin eliminarlo</strong>.</p>
+                       <p>Este es el próximo elemento que será devuelto por <code class="code">dequeue()</code>.</p>
+                       <p><strong>Diferencia clave con Dequeue:</strong> <code class="code">front()</code> es "no destructiva" (solo lee), mientras que <code class="code">dequeue()</code> es "destructiva" (lee y modifica la cola).</p>
+                       <h3>Implementación (Pseudocódigo con Lista)</h3>
+                       <pre>CLASE ColaConLista:
+    // ...
+
+    FUNCION front():
+        SI (isEmpty()):
+            LANZAR ERROR "Queue Underflow"
+        SINO:
+            RETORNAR nodoFront.valor
+</pre>
+                       <p><strong class="strong">Uso en Algoritmos:</strong> Es útil en el <strong class="strong">Problema Productor-Consumidor</strong>. El consumidor puede <code class="code">front()</code> para ver el trabajo. Si puede procesarlo, llama a <code class="code">dequeue()</code>. Si no puede (ej. un recurso está bloqueado), <strong class="strong">no</strong> lo desencola, permitiendo que otro consumidor lo intente.</p>`
+            },
+            'complejidad': {
+                titulo: 'Complejidad Temporal y Espacial (Big O)',
+                html: `<p>La eficiencia de una cola depende <strong class="strong">críticamente</strong> de su implementación. El objetivo es que <code class="code">enqueue</code> y <code class="code">dequeue</code> sean <code class="code">O(1)</code> (Tiempo Constante).</p>
+                       
+                       <h3>Complejidad Temporal (Tiempo)</h3>
+                       <table style="width:100%; border-collapse: collapse;">
+                         <tr style="border-bottom: 2px solid var(--color-neon-azul);">
+                           <th style="padding: 8px; text-align: left;">Implementación</th>
+                           <th style="padding: 8px; text-align: left;"><code class="code">Enqueue (Añadir)</code></th>
+                           <th style="padding: 8px; text-align: left;"><code class="code">Dequeue (Quitar)</code></th>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;"><strong class="strong">Array Simple (Ingenua)</strong></td>
+                           <td style="padding: 8px;"><code class="code">O(1)</code> (push)</td>
+                           <td style="padding: 8px;"><strong style="color:var(--color-neon-magenta)">O(n)</strong> (shift)</td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;"><strong class="strong">Lista Enlazada (Ideal)</strong></td>
+                           <td style="padding: 8px;"><code class="code">O(1)</code> (addRear)</td>
+                           <td style="padding: 8px;"><code class="code">O(1)</code> (removeFront)</td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;"><strong class="strong">Cola Circular (Array)</strong></td>
+                           <td style="padding: 8px;"><code class="code">O(1)</code></td>
+                           <td style="padding: 8px;"><code class="code">O(1)</code></td>
+                         </tr>
+                       </table>
+                       <p><strong class="strong">Conclusión:</strong> Nunca uses un array simple con <code class="code">shift()</code> para implementar una cola en código de producción. Usa una <strong class="strong">Lista Enlazada</strong> (o una <code class="code">Deque</code>, como <code class="code">ArrayDeque</code> en Java) para colas de tamaño <strong class="strong">dinámico</strong>, o una <strong class="strong">Cola Circular</strong> para colas de tamaño <strong class="strong">fijo</strong> (buffers).</p>
+                       
+                       <h3>Complejidad Espacial (Memoria)</h3>
+                       <ul>
+                           <li><strong class="strong">Espacio:</strong> <code class="code">O(n)</code>. Una cola debe almacenar <code class="code">n</code> elementos, por lo que su uso de memoria crece linealmente con la cantidad de elementos.</li>
+                       </ul>`
+            },
+            'impl_array_simple': {
+                titulo: 'Implementación: Con Array Simple (Ineficiente)',
+                html: `<p>Es la forma más fácil de prototipar una cola en lenguajes de alto nivel como JavaScript, pero es <strong class="strong">extremadamente ineficiente</strong> para <code class="code">dequeue</code>.</p>
+                       <pre>let cola = [];
+
+// Enqueue (Rápido)
+funcion enqueue(valor):
+    cola.push(valor); // O(1) Amortizado
+
+// Dequeue (¡Muy Lento!)
+funcion dequeue():
+    if (cola.length == 0) return null;
+    return cola.shift(); // O(n)
+</pre>
+                       <p><strong class="strong">El problema O(n) de <code class="code">shift()</code>:</strong></p>
+                       <p>Imagina un array <code class="code">[A, B, C, D, E]</code>. <code class="code">front=0</code>.</p>
+                       <p>Llamas <code class="code">dequeue()</code>. Devuelve 'A'. El array ahora tiene un hueco: <code class="code">[__, B, C, D, E]</code>.</p>
+                       <p>Para arreglarlo, el motor de JavaScript debe <strong class="strong">mover todo</strong>:</p>
+                       <ol>
+                           <li><code class="code">array[0] = array[1]</code> (B)</li>
+                           <li><code class="code">array[1] = array[2]</code> (C)</li>
+                           <li><code class="code">array[2] = array[3]</code> (D)</li>
+                           <li><code class="code">array[3] = array[4]</code> (E)</li>
+                       </ol>
+                       <p>El array ahora es <code class="code">[B, C, D, E, E]</code> y se acorta a <code class="code">[B, C, D, E]</code>. Esto requirió <code class="code">n-1</code> operaciones de copia. Si <code class="code">n = 1,000,000</code>, es un millón de copias por un solo <code class="code">dequeue</code>.</p>`
+            },
+            'impl_lista': {
+                titulo: 'Implementación: Con Lista Enlazada (Ideal Dinámica)',
+                html: `<p>Esta es la implementación <strong class="strong">ideal</strong> para una cola de <strong class="strong">tamaño dinámico</strong> (que puede crecer indefinidamente). Se usa una Lista Enlazada Simple, pero con <strong class="strong">dos punteros</strong>.</p>
+                       <p>Se necesitan dos referencias: <code class="code">front</code> (para saber de dónde sacar) y <code class="code">rear</code> (para saber dónde meter).</p>
+                       <pre>CLASE Nodo:
+    valor
+    siguiente (puntero a Nodo)
+
+CLASE ColaConLista:
+    nodoFront = NULL // Puntero al primer nodo
+    nodoRear = NULL  // Puntero al último nodo
+
+    FUNCION enqueue(valor): // O(1)
+        nuevoNodo = nuevo Nodo(valor)
+        SI (nodoRear != NULL):
+            nodoRear.siguiente = nuevoNodo
+        
+        nodoRear = nuevoNodo
+        
+        SI (nodoFront == NULL):
+            nodoFront = nuevoNodo
+
+    FUNCION dequeue(): // O(1)
+        SI (nodoFront == NULL):
+            LANZAR ERROR "Queue Underflow"
+        
+        valorARetornar = nodoFront.valor
+        nodoARemover = nodoFront
+        nodoFront = nodoFront.siguiente
+
+        // ¡CASO BORDE IMPORTANTE!
+        SI (nodoFront == NULL):
+            // La cola quedó vacía, 'rear' debe ser NULL también
+            nodoRear = NULL
+        
+        ELIMINAR nodoARemover
+        RETORNAR valorARetornar
+</pre>
+                       <p><strong class="strong">Ventaja:</strong> Complejidad <code class="code">O(1)</code> garantizada para <code class="code">enqueue</code> y <code class="code">dequeue</code>. Crecimiento dinámico ilimitado.</p>
+                       <p><strong class="strong">Desventaja:</strong> Pobre localidad de caché (lento en la práctica vs. Cola Circular) y sobrecarga de memoria por los punteros.</p>`
+            },
+            'impl_circular': {
+                titulo: 'Implementación: Cola Circular (Ideal Estática)',
+                html: `<p>Esta es la implementación <strong class="strong">más eficiente</strong> si necesitas una cola de <strong class="strong">tamaño fijo</strong> (ej. un buffer, un "ring buffer"). Resuelve el problema <code class="code">O(n)</code> del array simple.</p>
+                       <p>Usa un <strong>Array</strong>, pero en lugar de recorrer elementos, mueve dos <strong class="strong">índices</strong>: <code class="code">front</code> y <code class="code">rear</code>.</p>
+                       <p>La clave es que cuando un índice llega al final del array, <strong class="strong">da la vuelta al inicio</strong> (como un Pac-Man). Esto se logra con el <strong class="strong">operador módulo (%)</strong>.</p>
+                       <pre>CLASE ColaCircular:
+    TAMAÑO_MAX = 10
+    array = nuevo Array[TAMAÑO_MAX]
+    front = 0 // Índice de dónde sacar
+    rear = 0  // Índice de dónde poner
+    size = 0  // Conteo de elementos
+
+    FUNCION isFull(): RETORNAR (size == TAMAÑO_MAX)
+    FUNCION isEmpty(): RETORNAR (size == 0)
+
+    FUNCION enqueue(valor): // O(1)
+        SI (isFull()):
+            LANZAR ERROR "Queue Overflow"
+        
+        array[rear] = valor
+        // Mover 'rear' y dar la vuelta si es necesario
+        rear = (rear + 1) % TAMAÑO_MAX
+        size = size + 1
+
+    FUNCION dequeue(): // O(1)
+        SI (isEmpty()):
+            LANZAR ERROR "Queue Underflow"
+            
+        valorARetornar = array[front]
+        // Mover 'front' y dar la vuelta si es necesario
+        front = (front + 1) % TAMAÑO_MAX
+        size = size - 1
+        RETORNAR valorARetornar
+</pre>
+                       <p><strong class="strong">Ventaja:</strong> Rendimiento <code class="code">O(1)</code> real (sin amortización) y excelente localidad de caché. Es la implementación más rápida posible.</p>
+                       <p><strong class="strong">Desventaja:</strong> Tamaño fijo.</p>`
+            },
+            'bfs': {
+                titulo: 'Uso: Búsqueda en Anchura (BFS)',
+                html: `<p>En algoritmos de grafos y árboles, la <strong class="strong">Búsqueda en Anchura (Breadth-First Search)</strong> es una estrategia que explora "capa por capa", visitando todos los vecinos de un nodo antes de moverse a los vecinos de los vecinos.</p>
+                       <p>BFS se implementa de forma natural usando una <strong>Cola</strong>, porque el FIFO asegura que se explore en el orden de "distancia" al nodo inicial.</p>
+                       <h3>Algoritmo de BFS con Cola:</h3>
+                       <pre>FUNCION BFS(nodoInicial):
+    cola = nueva Cola()
+    cola.enqueue(nodoInicial)
+    visitados = nuevo Set()
+    visitados.add(nodoInicial) // Marcar como visitado AL ENCOLARLO
+
+    MIENTRAS cola NO ESTÉ VACÍA:
+        nodoActual = cola.dequeue() // Saca el nodo más antiguo
+        imprimir(nodoActual.valor) // Visitar el nodo
+
+        // Encolar todos sus vecinos
+        PARA cada vecino DE nodoActual:
+            SI vecino NO ESTÁ en visitados:
+                visitados.add(vecino) // Marcar
+                cola.enqueue(vecino)
+</pre>
+                       <p><strong class="strong">DFS vs. BFS (Pila vs. Cola):</strong></p>
+                       <ul>
+                           <li><strong class="strong">BFS (Cola/FIFO):</strong> Saca el nodo más antiguo (ej. "A"). Añade a sus hijos [B, C]. Luego saca "B", añade [D, E]. La cola es [C, D, E]. Explora a todos los "hermanos" (B y C) antes que a los "nietos" (D y E).</li>
+                           <li><strong class="strong">DFS (Pila/LIFO):</strong> Saca el nodo más reciente (ej. "A"). Añade a sus hijos [B, C]. Luego saca "C", añade [F, G]. La pila es [B, F, G]. Explora a los "hijos" (C) y "nietos" (F, G) antes que a los "hermanos" (B).</li>
+                       </ul>
+                       <p>BFS siempre se usa para encontrar el <strong class="strong">camino más corto</strong> en grafos donde todas las conexiones "pesan" lo mismo.</p>`
+            },
+            'impresion': {
+                titulo: 'Uso: Colas de Impresión (Spooling)',
+                html: `<p>El ejemplo clásico de una cola. Cuando múltiples usuarios en una oficina envían trabajos a una sola impresora compartida, el sistema operativo (SO) actúa como un administrador de tráfico.</p>
+                       <p>El SO usa un servicio llamado <strong class="strong">"Print Spooler"</strong>, que es fundamentalmente una <strong>Cola (Queue)</strong>. "Spool" es un acrónimo de <strong class="strong">S</strong>imultaneous <strong class="strong">P</strong>eripheral <strong class="strong">O</strong>perations <strong class="strong">O</strong>n-<strong class="strong">L</strong>ine.</p>
+                       <ol>
+                           <li>Usuario A envía <code class="code">Doc1.pdf</code> -> <strong class="strong">Enqueue(Doc1)</strong>. Cola: [Doc1]</li>
+                           <li>Usuario B envía <code class="code">Doc2.png</code> -> <strong class="strong">Enqueue(Doc2)</strong>. Cola: [Doc1, Doc2]</li>
+                           <li>Usuario A envía <code class="code">Doc3.txt</code> -> <strong class="strong">Enqueue(Doc3)</strong>. Cola: [Doc1, Doc2, Doc3]</li>
+                       </ol>
+                       <p>La impresora es un "consumidor" lento. Cuando está lista para un nuevo trabajo:</p>
+                       <ol>
+                           <li>El Spooler llama a <strong class="strong">Dequeue()</strong>.</li>
+                           <li>Obtiene <code class="code">Doc1</code> (el primero que enviaste) y lo envía a la impresora. Cola: [Doc2, Doc3]</li>
+                           <li>Cuando la impresora termina, pide el siguiente. El Spooler llama <strong class="strong">Dequeue()</strong>.</li>
+                           <li>Obtiene <code class="code">Doc2</code> y lo envía. Cola: [Doc3]</li>
+                       </ol>
+                       <p>Esto asegura un procesamiento <strong class="strong">justo (FIFO)</strong> y desacopla a los usuarios (rápidos) de la impresora (lenta).</p>`
+            },
+            'buffers': {
+                titulo: 'Uso: Buffers (Productor-Consumidor)',
+                html: `<p>Un <strong class="strong">buffer</strong> es un área de memoria temporal usada para mediar entre dos procesos que operan a <strong class="strong">diferentes velocidades</strong>. La Cola es la estructura de datos perfecta para implementar un buffer.</p>
+                       <p>Este es el <strong class="strong">"Problema Productor-Consumidor"</strong>, un pilar de la concurrencia.</p>
+                       <ul>
+                           <li><strong class="strong">Productor:</strong> Un proceso rápido que genera datos (ej. un servidor de red recibiendo paquetes). Llama a <code class="code">enqueue()</code>.</li>
+                           <li><strong class="strong">Consumidor:</strong> Un proceso lento que procesa datos (ej. un hilo guardando esos paquetes en la base de datos). Llama a <code class="code">dequeue()</code>.</li>
+                       </ul>
+                       <p>La cola (buffer) actúa como un <strong class="strong">"amortiguador"</strong>. Permite al productor añadir 1000 paquetes en 1 segundo, mientras el consumidor los saca a un ritmo constante de 100 por segundo, sin que el productor tenga que esperar al consumidor.</p>
+                       <p>Esto se llama <strong class="strong">Procesamiento Asíncrono</strong> y es fundamental para que las aplicaciones sean rápidas y responsivas.</p>`
+            },
+            'tickets': {
+                titulo: 'Uso: Sistemas de Tickets (Load Leveling)',
+                html: `<p>Cualquier sistema de "atención al cliente" o "soporte técnico" que gestione solicitudes entrantes utiliza una cola para asegurar un procesamiento justo y ordenado.</p>
+                       <p>Este es un ejemplo de <strong class="strong">"Nivelación de Carga" (Load Leveling)</strong>.</p>
+                       <p>Imagina que tu sitio web recibe 1000 pedidos a las 12:00 PM (hora pico) pero solo 10 pedidos a las 3:00 AM. No puedes contratar 1000 empleados para un minuto.</p>
+                       <p>En lugar de procesar los pedidos al instante (sincrónico), los <strong class="strong">encolas (enqueue)</strong>.</p>
+                       <pre>// 12:00 PM - Ráfaga de 1000 pedidos
+enqueue(Pedido101)
+enqueue(Pedido102)
+...
+enqueue(Pedido1000)
+</pre>
+                       <p>Tienes un número <strong class="strong">constante</strong> de "trabajadores" (ej. 5) que sacan (<code class="code">dequeue</code>) pedidos de la cola a su propio ritmo. La cola se llenará a las 12:00 PM, pero los trabajadores la irán vaciando durante la siguiente hora. La cola "absorbe" la ráfaga, permitiendo que tu sistema la maneje con una capacidad de procesamiento constante.</p>`
+            },
+            'scheduling': {
+                titulo: 'Uso: Planificación de Procesos (CPU)',
+                html: `<p>En un sistema operativo moderno, la CPU (que a menudo tiene un solo núcleo de procesamiento real por vez) debe ser compartida por cientos de procesos (Chrome, Spotify, tu juego, el antivirus, etc.). El <strong class="strong">Planificador (Scheduler)</strong> del SO decide qué proceso ejecutar.</p>
+                       <p>El algoritmo de planificación más simple y justo es <strong class="strong">Round Robin</strong>, que utiliza una <strong class="strong">Cola de Procesos Listos</strong> (Ready Queue).</p>
+                       <ol>
+                           <li>Todos los procesos listos para ejecutarse están en una cola FIFO.</li>
+                           <li>El planificador saca (dequeue) el proceso del frente (ej. <code class="code">Chrome</code>).</li>
+                           <li>Le da un <strong class="strong">"quanto"</strong> o "time slice" de tiempo (ej. 10 milisegundos) para ejecutarse en la CPU.</li>
+                           <li><strong class="strong">Caso A:</strong> El proceso termina o se bloquea (ej. esperando al disco). Se saca de la CPU.</li>
+                           <li><strong class="strong">Caso B:</strong> El tiempo se agota (10ms) y el proceso <strong class="strong">no</strong> ha terminado.</li>
+                           <li>El planificador interrumpe a <code class="code">Chrome</code> y lo vuelve a encolar (<code class="code">enqueue</code>) <strong class="strong">al final</strong> de la cola.</li>
+                           <li>El planificador saca (dequeue) el siguiente proceso (ej. <code class="code">Spotify</code>) y le da sus 10ms.</li>
+                       </ol>
+                       <p>Esto da la ilusión de <strong class="strong">multitarea</strong>: todos los programas parecen correr al mismo tiempo, avanzando "a turnos".</p>`
+            },
+            'overflow': {
+                titulo: 'Error: Queue Overflow (Desbordamiento)',
+                html: `<p>Un <strong class="strong">Queue Overflow</strong> (Desbordamiento de Cola) es un error que ocurre cuando intentas realizar una operación <code class="code">enqueue()</code> en una cola que ya está <strong>llena</strong>.</p>
+                       <p>Este error <strong class="strong">solo puede ocurrir</strong> en implementaciones de <strong class="strong">tamaño fijo</strong> (Bounded Queues), como un array estático o una <strong>Cola Circular</strong>.</p>
+                       <p>En una implementación dinámica (como una Lista Enlazada), la cola puede crecer hasta agotar toda la memoria RAM del sistema, pero no tiene un límite "duro" (en teoría, puede causar un <code class="code">OutOfMemoryError</code>, que es diferente).</p>
+                       <h3>Ejemplo (Buffer de Red):</h3>
+                       <p>Un router tiene un buffer (cola circular) de tamaño 1000 para paquetes de red. Si llega una ráfaga de 1500 paquetes (Productor) y el procesador del router (Consumidor) es lento, los primeros 1000 paquetes llenarán el buffer.</p>
+                       <p>Cuando el paquete 1001 intente hacer <code class="code">enqueue()</code>, la cola dirá "Overflow". El router entonces <strong class="strong">descarta el paquete</strong> (packet loss). Esta es una causa común de lag y pérdida de datos en redes congestionadas.</p>`
+            },
+            'underflow': {
+                titulo: 'Error: Queue Underflow (Subdesbordamiento)',
+                html: `<p>Un <strong class="strong">Queue Underflow</strong> (Subdesbordamiento de Cola) es un error que ocurre cuando intentas realizar una operación <code class="code">dequeue()</code> o <code class="code">front()</code> en una <strong>cola vacía</strong>.</p>
+                       <p>Es el equivalente en colas del Stack Underflow. Estás tratando de tomar algo de un contenedor que no tiene nada.</p>
+                       <h3>Consecuencia: "Consumer Starvation"</h3>
+                       <p>En el <strong class="strong">Problema Productor-Consumidor</strong>, un Underflow no debería "crashear" el programa, sino que indica que el <strong class="strong">Consumidor está "hambriento"</strong> (Starvation): está listo para trabajar, pero no hay trabajo que hacer.</p>
+                       <p>Un buen programa consumidor maneja esto elegantemente:</p>
+                       <pre>MIENTRAS (servidor_activo):
+    trabajo = cola.dequeue() // Intenta sacar un trabajo
+    
+    SI (trabajo == NULL): // ¡Underflow!
+        // La cola está vacía
+        dormir(1 segundo) // Esperar y volver a intentarlo
+    SINO:
+        // Hay trabajo, procesarlo
+        procesar(trabajo)
+</pre>
+                       <p>Este "polling" (verificar repetidamente) es una forma de manejarlo. Las colas de bloqueo (Blocking Queues) son una solución más avanzada.</p>`
+            },
+            'punteros_front_rear': {
+                titulo: 'Punteros: Front (Frente) y Rear (Final)',
+                html: `<p>A diferencia de una Pila que solo necesita <strong class="strong">un</strong> puntero (<code>top</code>) para ser eficiente, una Cola eficiente necesita <strong class="strong">dos</strong> punteros (o índices) para lograr operaciones <code class="code">O(1)</code>.</p>
+                       <p>Estos punteros son <code class="code">front</code> (o <code class="code">head</code>) y <code class="code">rear</code> (o <code class="code">tail</code>).</p>
+                       
+                       <h3>Flujo de Punteros (Lista Enlazada):</h3>
+                       <p><strong>Estado Inicial:</strong> <code>front = NULL</code>, <code>rear = NULL</code></p>
+                       <p><strong>Enqueue(A):</strong></p>
+                       <pre>front -> [A] <- rear</pre>
+                       
+                       <p><strong>Enqueue(B):</strong></p>
+                       <pre>front -> [A] -> [B] <- rear</pre>
+                       
+                       <p><strong>Enqueue(C):</strong></p>
+                       <pre>front -> [A] -> [B] -> [C] <- rear</pre>
+                       
+                       <p><strong>Dequeue():</strong> (Devuelve A)</p>
+                       <pre>         front -> [B] -> [C] <- rear</pre>
+                       
+                       <p><strong class="strong">¿Por qué son necesarios ambos?</strong> Si solo tuvieras <code class="code">front</code> (como en una lista enlazada simple), <code class="code">dequeue</code> sería O(1) pero <code class="code">enqueue</code> (añadir al final) sería <code class="code">O(n)</code>, porque tendrías que recorrer toda la lista (<code>nodo = nodo.siguiente</code>) para encontrar el último elemento.</p>
+                       <p>Almacenar un puntero extra (<code class="code">rear</code>) nos da acceso <code class="code">O(1)</code> al final, resolviendo el problema.</p>`
+            },
+            'priority_queue': {
+                titulo: 'Tipo: Cola de Prioridad',
+                html: `<p>Una <strong class="strong">Cola de Prioridad (Priority Queue)</strong> es un tipo especial de ADT de cola que <strong class="strong">IGNORA el principio FIFO</strong>.</p>
+                       <p>En lugar de "primero en entrar, primero en salir", sigue el principio de <strong class="strong">"más importante en salir"</strong>.</p>
+                       <h3>Operaciones:</h3>
+                       <ul>
+                           <li><code class="code">add(elemento, prioridad)</code>: Añade un elemento con una prioridad asociada (un número).</li>
+                           <li><code class="code">poll()</code> o <code class="code">removeMax()</code>: Elimina y devuelve el elemento con la <strong class="strong">prioridad más alta</strong>, sin importar cuándo llegó.</li>
+                       </ul>
+                       <h3>Analogía: Sala de Emergencias</h3>
+                       <p>Una sala de emergencias es una Cola de Prioridad, no una Cola normal.</p>
+                       <ol>
+                           <li>1:00 PM: Llega Paciente A (resfriado, Prioridad 3). Cola: [A(3)]</li>
+                           <li>1:05 PM: Llega Paciente B (hueso roto, Prioridad 2). Cola: [A(3), B(2)]</li>
+                           <li>1:10 PM: Llega Paciente C (ataque al corazón, Prioridad 1). Cola: [A(3), B(2), C(1)]</li>
+                       </ol>
+                       <p>Cuando un doctor está disponible, el hospital <strong class="strong">no</strong> hace <code class="code">dequeue()</code> (que sacaría al Paciente A). Hace <code class="code">poll()</code>, que busca y saca al Paciente C (Prioridad 1).</p>
+                       <h3>Implementación:</h3>
+                       <p><strong class="strong">Ineficiente (Array/Lista):</strong> <code>add</code> es O(1) pero <code>poll</code> es O(n) (debes buscar en toda la lista el de mayor prioridad).</p>
+                       <p><strong class="strong">Eficiente (Heap):</strong> Se implementan comúnmente usando una estructura de árbol llamada <strong class="strong">Heap (Montículo Binario)</strong>. Un Heap mantiene el elemento de mayor (o menor) prioridad en la raíz, permitiendo:</p>
+                       <ul>
+                           <li><code class="code">add</code> (Insertar): <code class="code">O(log n)</code></li>
+                           <li><code class="code">poll</code> (Extraer-Max): <code class="code">O(log n)</code></li>
+                       </ul>`
+            },
+            'deque': {
+                titulo: 'Tipo: Doble Cola (Deque)',
+                html: `<p>Una <strong class="strong">Deque</strong> (pronunciado "deck") significa <strong>Double-Ended Queue</strong> (Cola de Doble Extremo). Es la estructura más flexible de este tipo, combinando el poder de una Pila y una Cola.</p>
+                       <p>Permite añadir y eliminar elementos de <strong class="strong">AMBOS</strong> extremos (frente y final) en tiempo <code class="code">O(1)</code>.</p>
+                       <h3>Operaciones Principales:</h3>
+                       <ul>
+                           <li><code class="code">addFront(valor)</code>: Añade al frente (como <code class="code">push</code> de Pila).</li>
+                           <li><code class="code">addRear(valor)</code>: Añade al final (como <code class="code">enqueue</code> de Cola).</li>
+                           <li><code class="code">removeFront()</code>: Elimina del frente (como <code class="code">pop</code> de Pila / <code class="code">dequeue</code> de Cola).</li>
+                           <li><code class="code">removeRear()</code>: Elimina del final (¡operación extra!).</li>
+                       </ul>
+                       <h3>Usos:</h3>
+                       <p>Una Deque puede <strong class="strong">simular</strong> tanto una Pila como una Cola:</p>
+                       <ul>
+                           <li><strong class="strong">Para simular una Pila:</strong> Usa solo <code class="code">addFront()</code> y <code class="code">removeFront()</code>. (De hecho, en Java, la clase <code class="code">Stack</code> es obsoleta y se recomienda usar <code class="code">Deque</code> en su lugar: <code class="code">Deque<String> pila = new ArrayDeque<>()</code>).</li>
+                           <li><strong class="strong">Para simular una Cola:</strong> Usa solo <code class="code">addRear()</code> y <code class="code">removeFront()</code>.</li>
+                       </ul>
+                       <p>Se usa en algoritmos complejos como el de <strong class="strong">"ventana deslizante" (sliding window)</strong> para encontrar máximos/mínimos en un sub-array en tiempo O(n).</p>
+                       <p><strong class="strong">Implementación:</strong> Se implementa eficientemente usando una <strong class="strong">Lista Doblemente Enlazada</strong> (que tiene punteros <code class="code">next</code> y <code class="code">prev</code>) o una Cola Circular modificada.</p>`
+            },
+            'vs_pila': {
+                titulo: 'Comparativa: Cola vs. Pila',
+                html: `<p>Ambas son estructuras de datos lineales (colecciones de elementos en secuencia), pero su <strong class="strong">política de acceso</strong> es la opuesta.</p>
+                       <table style="width:100%; border-collapse: collapse;">
+                         <tr style="border-bottom: 2px solid var(--color-neon-azul);">
+                           <th style="padding: 8px; text-align: left;">Característica</th>
+                           <th style="padding: 8px; text-align: left;">Cola (Queue)</th>
+                           <th style="padding: 8px; text-align: left;">Pila (Stack)</th>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;">Principio</td>
+                           <td style="padding: 8px;"><strong class="strong">FIFO</strong> (First-In, First-Out)</td>
+                           <td style="padding: 8px;"><strong class="strong">LIFO</strong> (Last-In, First-Out)</td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;">Filosofía</td>
+                           <td style="padding: 8px;">"Lo más antiguo primero" / Justicia</td>
+                           <td style="padding: 8px;">"Lo más reciente primero" / Retroceso</td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;">Analogía</td>
+                           <td style="padding: 8px;">Fila del supermercado, Cola de impresión</td>
+                           <td style="padding: 8px;">Pila de platos, Ctrl+Z</td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;">Operación Añadir</td>
+                           <td style="padding: 8px;"><code class="code">Enqueue</code> (al <strong class="strong">final/rear</strong>)</td>
+                           <td style="padding: 8px;"><code class="code">Push</code> (a la <strong class="strong">cima/top</strong>)</td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;">Operación Quitar</td>
+                           <td style="padding: 8px;"><code class="code">Dequeue</code> (del <strong class="strong">frente/front</strong>)</td>
+                           <td style="padding: 8px;"><code class="code">Pop</code> (de la <strong class="strong">cima/top</strong>)</td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;">Punteros Clave</td>
+                           <td style="padding: 8px;">2 punteros: <code class="code">Front</code> y <code class="code">Rear</code></td>
+                           <td style="padding: 8px;">1 puntero: <code class="code">Top</code></td>
+                         </tr>
+                         <tr>
+                           <td style="padding: 8px;">Uso en Algoritmos</td>
+                           <td style="padding: 8px;">BFS, Planificación, Camino más corto</td>
+                           <td style="padding: 8px;">DFS, Backtracking, RPN</td>
+                         </tr>
+                       </table>`
+            }
+        };
+        
+
+        // --- 4.3. Lógica para Generar Glosarios (Añadido) ---
+        function inicializarGlosarios() {
+            const pilasGlossaryNav = document.getElementById('pilas-glossary-nav');
+            const pilasGlossaryContent = document.getElementById('pilas-glossary-content');
+            const filasGlossaryNav = document.getElementById('filas-glossary-nav');
+            const filasGlossaryContent = document.getElementById('filas-glossary-content');
+
+            // Función ayudante para crear los botones
+            function crearBotones(db, nav, contentEl) {
+                // Ordenar las claves alfabéticamente por el título
+                const sortedKeys = Object.keys(db).sort((a, b) => db[a].titulo.localeCompare(db[b].titulo));
+
+                sortedKeys.forEach(key => {
+                    const concepto = db[key];
+                    const btn = document.createElement('button');
+                    btn.className = 'glossary-btn';
+                    btn.dataset.key = key;
+                    btn.textContent = concepto.titulo;
+                    
+                    btn.addEventListener('click', () => {
+                        // Quitar 'active' de todos los botones en esta nav
+                        nav.querySelectorAll('.glossary-btn').forEach(b => b.classList.remove('active'));
+                        // Poner 'active' en este
+                        btn.classList.add('active');
+                        // Actualizar contenido
+                        contentEl.innerHTML = `<h3>${concepto.titulo}</h3>${concepto.html}`;
+                        // Hacer scroll hacia arriba en el panel de contenido
+                        contentEl.scrollTop = 0;
+                    });
+                    
+                    nav.appendChild(btn);
+                });
+            }
+
+            // Crear botones para ambos glosarios
+            crearBotones(conceptosPilas, pilasGlossaryNav, pilasGlossaryContent);
+            crearBotones(conceptosFilas, filasGlossaryNav, filasGlossaryContent);
+
+            // Activar el primer concepto por defecto
+            if (pilasGlossaryNav.children.length > 0) {
+                pilasGlossaryNav.children[0].click();
+            }
+            if (filasGlossaryNav.children.length > 0) {
+                filasGlossaryNav.children[0].click();
+            }
+        }
+
+        // --- 5. INICIALIZACIÓN DE LA PÁGINA ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPila(); // Mostrar [PILA VACÍA] al cargar
+            renderFila();  // Mostrar [FILA VACÍA] al cargar
+            inicializarGlosarios(); // Crear y activar los glosarios
+            tabs[0].click(); // Asegurarse de que la primera pestaña esté activa
+        });
+
+    </script>
+</body>
+</html>
