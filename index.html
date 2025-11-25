@@ -472,8 +472,13 @@
 <body>
 
     <nav class="tab-nav">
-        <button class="tab-btn active" data-tab="pilas-sim">Simulador: Pilas</button>
-        <button class="tab-btn" data-tab="filas-sim">Simulador: Colas</button>
+       <button class="tab-btn" onclick="window.location.href="https://simulador-pilas-python.onrender.com/">
+    Simulador: Pilas
+</button>
+
+<button class="tab-btn" onclick="window.location.href="https://colas-python-1.onrender.com/">
+    Simulador: Colas
+</button>
         <button class="tab-btn" data-tab="pilas-conceptos">Conceptos: Pilas</button>
         <button class="tab-btn" data-tab="filas-conceptos">Conceptos: Colas</button>
     </nav>
@@ -533,9 +538,7 @@
 
             <div class="visual-panel">
                 <h2>VISUALIZACIÓN DE LA Colas (FIFO)</h2>
-                
                 <div id="fila-visualization-area">
-                    
                     <span class="null-text">[Cola VACÍA]</span>
                 </div>
             </div>
@@ -614,57 +617,7 @@
             </div>
         </div>
     </div>
-    <!-- PESTAÑA: SIMULADOR PILAS (Modificada con Link) -->
-    <div id="pilas-sim-content" class="tab-content active">
-        <div class="container">
-            <header style="grid-column: 1 / -1; text-align: center; margin-bottom: 10px;">
-                <h1>CyberStack: Portal de Acceso</h1>
-            </header>
-
-            <div class="link-card">
-                <h2 style="color: var(--color-neon-azul); margin-bottom: 15px;">MÓDULO DE SIMULACIÓN LIFO DETECTADO</h2>
-                <p style="max-width: 600px; font-size: 1.2rem; margin-bottom: 20px;">
-                    El entorno de simulación para <strong>PILAS (Stacks)</strong> se encuentra alojado en un servidor externo seguro. 
-                    Haga clic en el botón inferior para inicializar la conexión con el simulador.
-                </p>
-                
-                <!-- CAMBIA EL HREF POR TU LINK -->
-                <a href="https://simulador-pilas-python.onrender.com/" target="_blank" class="cyber-link-btn">
-                    INICIAR SIMULADOR PILAS
-                </a>
-                
-                <p style="margin-top: 20px; font-size: 0.9rem; color: #666;">
-                    Estado del enlace: <span style="color: var(--color-neon-verde)">ACTIVO</span>
-                </p>
-            </div>
-        </div>
-    </div>
-    
-    <!-- PESTAÑA: SIMULADOR COLAS (Modificada con Link) -->
-    <div id="filas-sim-content" class="tab-content">
-        <div class="container">
-            <header style="grid-column: 1 / -1; text-align: center; margin-bottom: 10px;">
-                <h1>CyberQueue: Portal de Acceso</h1>
-            </header>
-
-            <div class="link-card" style="border-color: var(--color-neon-verde);">
-                <h2 style="color: var(--color-neon-verde); margin-bottom: 15px;">MÓDULO DE SIMULACIÓN FIFO DETECTADO</h2>
-                <p style="max-width: 600px; font-size: 1.2rem; margin-bottom: 20px;">
-                    El entorno de simulación para <strong>COLAS (Queues)</strong> requiere acceso externo.
-                    Haga clic a continuación para desplegar la interfaz de colas.
-                </p>
-                
-                <!-- CAMBIA EL HREF POR TU LINK -->
-                <a href="https://colas-python-1.onrender.com/" target="_blank" class="cyber-link-btn secondary">
-                    INICIAR SIMULADOR COLAS
-                </a>
-
-                <p style="margin-top: 20px; font-size: 0.9rem; color: #666;">
-                    Estado del enlace: <span style="color: var(--color-neon-verde)">ACTIVO</span>
-                </p>
-            </div>
-        </div>
-    </div>
+   
 
 
     <script>
@@ -2107,6 +2060,7 @@ enqueue(Pedido1000)
 </body>
 
 </html>
+
 
 
 
